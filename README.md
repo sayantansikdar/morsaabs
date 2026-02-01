@@ -28,5 +28,5 @@ A full-stack web application for Morsaab's restaurant featuring online reservati
 
 1. **Clone and setup:**
    ```bash
-   git clone https://github.com/yourusername/morsaabs.git
+   git clone https://github.com/sayantansikdar/morsaabs.git
    cd morsaabs
