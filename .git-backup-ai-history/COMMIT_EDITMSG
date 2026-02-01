@@ -1,0 +1,1 @@
+fix: resolve React 19 and date-fns dependency conflicts by downgrading to compatible versions

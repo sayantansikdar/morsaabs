@@ -1,0 +1,171 @@
+/* Restaurant specific styles */
+
+.section-title {
+  @apply text-4xl md:text-5xl font-semibold tracking-tight text-center;
+  font-family: 'Playfair Display', serif;
+}
+
+.section-subtitle {
+  @apply text-base md:text-lg text-center max-w-2xl mx-auto;
+  color: #64748B;
+}
+
+/* Menu item card hover effect */
+.menu-card {
+  @apply relative overflow-hidden rounded-lg bg-white transition-all duration-300;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.1);
+}
+
+.menu-card:hover {
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+/* Gallery image hover */
+.gallery-item {
+  @apply relative overflow-hidden rounded-lg cursor-pointer;
+}
+
+.gallery-item img {
+  @apply transition-transform duration-500;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.1);
+}
+
+.gallery-item::after {
+  content: '';
+  @apply absolute inset-0 bg-black/0 transition-all duration-300;
+}
+
+.gallery-item:hover::after {
+  @apply bg-black/30;
+}
+
+/* Review card */
+.review-card {
+  @apply p-6 rounded-lg bg-white border border-gray-100;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+}
+
+/* CTA button styles */
+.btn-primary {
+  @apply px-8 py-4 rounded-full font-medium text-white transition-all duration-300;
+  background-color: #1A4D2E;
+}
+
+.btn-primary:hover {
+  background-color: #153d24;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  @apply px-8 py-4 rounded-full font-medium transition-all duration-300 border-2;
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.btn-secondary:hover {
+  background-color: #D4AF37;
+  color: #1A1A1A;
+  transform: scale(1.05);
+}
+
+/* Navigation styles */
+.nav-link {
+  @apply relative font-medium transition-colors duration-300;
+  color: #2D2D2D;
+}
+
+.nav-link::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300;
+  background-color: #D4AF37;
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+.nav-link:hover {
+  color: #1A4D2E;
+}
+
+/* Floating action button */
+.fab {
+  @apply fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300;
+  background-color: #1A4D2E;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 30px rgba(26, 77, 46, 0.4);
+}
+
+/* Service card */
+.service-card {
+  @apply p-6 rounded-lg bg-white text-center transition-all duration-300;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+}
+
+.service-card:hover {
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+/* Map container */
+.map-container {
+  @apply rounded-lg overflow-hidden;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.1);
+}
+
+/* Cart badge */
+.cart-badge {
+  @apply absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white;
+  background-color: #E85D04;
+}
+
+/* Time slot button */
+.time-slot {
+  @apply px-4 py-2 rounded-lg border transition-all duration-200 text-sm font-medium;
+}
+
+.time-slot:hover:not(.time-slot-selected) {
+  border-color: #1A4D2E;
+  color: #1A4D2E;
+}
+
+.time-slot-selected {
+  background-color: #1A4D2E;
+  border-color: #1A4D2E;
+  color: white;
+}
+
+/* Divider with ornament */
+.ornament-divider {
+  @apply flex items-center justify-center gap-4 my-8;
+}
+
+.ornament-divider::before,
+.ornament-divider::after {
+  content: '';
+  @apply h-px flex-1;
+  background: linear-gradient(to right, transparent, #D4AF37, transparent);
+}
+
+/* Order summary */
+.order-item {
+  @apply flex justify-between items-center py-3 border-b border-gray-100 last:border-0;
+}
+
+/* Sticky header */
+.sticky-header {
+  @apply fixed top-0 left-0 right-0 z-50 transition-all duration-300;
+}
+
+.sticky-header.scrolled {
+  @apply shadow-lg;
+  background: rgba(253, 251, 247, 0.95);
+  backdrop-filter: blur(10px);
+}

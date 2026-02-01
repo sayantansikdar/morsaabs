@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 6d0163f6e1a809ca35e3de7e8d4b53dd0906a8bb Sayantan Sikdar <sayantansikdar@Sikdar-MacOS.local> 1769878249 +0530	clone: from https://github.com/sayantansikdar/morsaabs.git
+6d0163f6e1a809ca35e3de7e8d4b53dd0906a8bb f0e0f199c439fdf3d28da250b57c13b242db545f Sayantan Sikdar <sayantansikdar@Sikdar-MacOS.local> 1769940715 +0530	commit: feat: complete Morsaab's restaurant website with frontend and backend
+f0e0f199c439fdf3d28da250b57c13b242db545f 9b7c3a17972293eb5e96fff3844e3c617e10861d Sayantan Sikdar <sayantansikdar@Sikdar-MacOS.local> 1769940793 +0530	commit: refactor: final cleanup and reorganization for human-crafted project
+9b7c3a17972293eb5e96fff3844e3c617e10861d 4f80cf53eb36d0ab4d3e229b751a01956c462989 Sayantan Sikdar <sayantansikdar@Sikdar-MacOS.local> 1769944955 +0530	commit: fix: resolve React 19 and date-fns dependency conflicts by downgrading to compatible versions
