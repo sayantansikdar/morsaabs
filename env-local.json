@@ -1,0 +1,11 @@
+{
+  "ApiFunction": {
+    "DYNAMODB_ENDPOINT_URL": "http://host.docker.internal:8001",
+    "AWS_ACCESS_KEY_ID": "local",
+    "AWS_SECRET_ACCESS_KEY": "local",
+    "AWS_REGION": "ap-south-1",
+    "RESERVATIONS_TABLE": "morsaabs-reservations",
+    "ORDERS_TABLE": "morsaabs-orders",
+    "CONTACT_TABLE": "morsaabs-contact-messages"
+  }
+}
