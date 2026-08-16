@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+# The frontend is covered by frontend.yml, which typechecks and lints as well
+# as building. The CRA-era job that lived here is gone with the CRA app.
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r backend/requirements-dev.txt
+      - name: Run tests
+        run: pytest tests/ -q
+
+  template:
+    name: Validate SAM template
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - name: Validate
+        run: sam validate --lint --region ap-south-1

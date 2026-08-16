@@ -77,10 +77,16 @@ agenthub/agents/youtube/db
 .cache/
 
 # Mobile development
-android-sdk/ frontend/node_modules/.cache/default-development/3.pack
-frontend/node_modules/.cache/default-development/3.pack
-frontend/node_modules/.cache/default-development/0.pack
--e 
+android-sdk/
+
 # Environment files
+.env
 *.env
 *.env.*
+!.env.example
+!*.env.example
+# Non-secret build config: needed by CI to produce a correct production bundle.
+!.env.production
+
+# SAM build artifacts
+.aws-sam/
