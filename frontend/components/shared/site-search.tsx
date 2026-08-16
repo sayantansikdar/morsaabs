@@ -159,7 +159,6 @@ export function SiteSearch({
 
         <div className="flex items-center gap-3 border-b border-border px-5">
           <Search className="size-5 shrink-0 text-gold-500" aria-hidden="true" />
-          {/* eslint-disable-next-line jsx-a11y/no-autofocus -- the dialog exists to receive this input */}
           <input
             autoFocus
             type="search"

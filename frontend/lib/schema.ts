@@ -6,7 +6,7 @@
  * unrelated businesses.
  */
 
-import { SITE_URL, site, fullAddress } from './site'
+import { SITE_URL, site } from './site'
 import { menu } from '@/content/menu'
 import { faqs } from '@/content/faqs'
 import type { Post } from '@/content/blog'

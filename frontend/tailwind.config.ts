@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import animate from 'tailwindcss-animate'
 
 /**
  * "Royal Kingdom of Morsaab's" — the palette is lifted from the concept reel:
@@ -166,7 +167,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [animate],
 }
 
 export default config
