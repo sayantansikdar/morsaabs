@@ -1,0 +1,134 @@
+name: Frontend
+
+# Deliberately not named ci.yml: PR #1 introduces a ci.yml covering the backend
+# and the SAM template, and two files of the same name on two branches is a
+# guaranteed conflict. When that lands, delete its `frontend` job — it is
+# written for the old CRA app (it sets CI=false to stop warnings failing the
+# build) and does not typecheck.
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend.yml"
+  pull_request:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend.yml"
+  workflow_dispatch:
+
+# A new push to a PR makes the in-flight run redundant.
+concurrency:
+  group: frontend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  verify:
+    name: Typecheck, lint & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # npm ci is the point: it installs from the lockfile exactly and fails if
+      # package.json and the lockfile have drifted, which npm install would
+      # silently paper over.
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          # The build bakes canonicals, sitemap URLs and JSON-LD from this, so
+          # CI uses the production origin to catch anything that hardcodes a
+          # localhost URL. Real deploys set it in the host's env.
+          NEXT_PUBLIC_SITE_URL: https://www.morsaabs.com
+
+      # Cheap guards against the SEO plumbing silently breaking — each of these
+      # is generated, so a refactor can drop them without any test noticing.
+      - name: Verify generated SEO routes
+        run: |
+          set -euo pipefail
+          # An uncommon port, and 127.0.0.1 rather than localhost: localhost
+          # can resolve to ::1 or 127.0.0.1, so anything else bound to the port
+          # on the other stack silently answers instead of us.
+          PORT=3123
+          BASE="http://127.0.0.1:$PORT"
+
+          npx next start -H 127.0.0.1 -p $PORT &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null "$BASE/" && break
+            sleep 1
+          done
+
+          fail=0
+          check() {
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE$1")
+            if [ "$code" != "$2" ]; then
+              echo "::error::$1 returned $code, expected $2"
+              fail=1
+            else
+              echo "ok  $1 -> $code"
+            fi
+          }
+
+          check / 200
+          check /menu 200
+          check /services/catering 200
+          check /blog/dum-pukht-the-lost-art-of-sealed-cooking 200
+          check /sitemap.xml 200
+          check /robots.txt 200
+          check /llms.txt 200
+          check /opengraph-image 200
+          check /definitely-not-a-page 404
+
+          # Every indexable page must carry a canonical and exactly one h1.
+          #
+          # Matching is done with bash globs rather than `... | grep -q`:
+          # grep -q exits on the first match and closes the pipe mid-write,
+          # which under `set -o pipefail` reports a false failure.
+          for path in / /menu /about /services/catering /blog; do
+            html=$(curl -s "$BASE$path")
+
+            if [[ "$html" != *'rel="canonical"'* ]]; then
+              echo "::error::$path is missing a canonical tag"; fail=1
+            fi
+
+            # grep -o consumes all input, so it is safe in a pipe here.
+            h1s=$(grep -o '<h1' <<< "$html" | wc -l | tr -d ' ')
+            if [ "$h1s" != "1" ]; then
+              echo "::error::$path has $h1s <h1> elements, expected 1"; fail=1
+            fi
+          done
+          echo "ok  canonical + single <h1> across 5 pages"
+
+          # The restaurant schema is what local search reads; losing it is silent.
+          home=$(curl -s "$BASE/")
+          if [[ "$home" != *'"@type":"Restaurant"'* ]]; then
+            echo "::error::Restaurant JSON-LD missing from the home page"; fail=1
+          else
+            echo "ok  Restaurant JSON-LD present"
+          fi
+
+          exit $fail
