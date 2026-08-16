@@ -1,0 +1,281 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 60% 97%; /* warm sandstone courtyard */
+    --foreground: 20 45% 11%; /* warm ink */
+    --card: 0 0% 100%;
+    --card-foreground: 20 45% 11%;
+    --muted: 40 40% 93%;
+    --muted-foreground: 24 12% 38%;
+    --border: 38 35% 85%;
+    --input: 38 35% 85%;
+    --ring: 46 61% 52%; /* gold focus ring */
+
+    --header-h: 4.5rem;
+  }
+
+  .dark {
+    --background: 355 30% 6%; /* lacquered maroon-black */
+    --foreground: 40 40% 94%;
+    --card: 356 26% 10%;
+    --card-foreground: 40 40% 94%;
+    --muted: 356 20% 15%;
+    --muted-foreground: 38 18% 72%;
+    --border: 356 22% 20%;
+    --input: 356 22% 20%;
+    --ring: 46 61% 58%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Anchors must not land under the sticky header. */
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    /* Prevents the decorative arch motifs from creating a sideways scroll. */
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Long URLs, order IDs and user-submitted text must reflow, not overflow. */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  ::selection {
+    @apply bg-gold-300 text-maroon-900;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-maroon-700/60;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-maroon-700;
+  }
+}
+
+@layer components {
+  /* ---- Royal ornament vocabulary ------------------------------------- */
+
+  /* Gold foil text — used sparingly on hero and section eyebrows. */
+  .text-gilt {
+    @apply bg-gold-leaf bg-clip-text text-transparent;
+    background-size: 200% 100%;
+    @apply animate-gold-sweep;
+  }
+
+  /* Mughal multifoil arch silhouette, drawn as a clip-path so any element
+     (image, card, section) can wear it without an extra wrapper. */
+  .clip-arch {
+    clip-path: path(
+      'M 0,100 L 0,42 C 0,18 22,0 50,0 C 78,0 100,18 100,42 L 100,100 Z'
+    );
+  }
+
+  .mask-arch {
+    -webkit-mask-image: radial-gradient(ellipse 100% 62% at 50% 62%, #000 62%, transparent 63%);
+    mask-image: radial-gradient(ellipse 100% 62% at 50% 62%, #000 62%, transparent 63%);
+  }
+
+  /* Hairline gold rule with a lozenge at the centre — the section divider. */
+  .rule-gilt {
+    @apply relative h-px w-full bg-gradient-to-r from-transparent via-gold-400/60 to-transparent;
+  }
+  .rule-gilt::after {
+    content: '';
+    @apply absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-gold-400;
+  }
+
+  /* Jaali (lattice) screen — a repeating stone-carved pattern for panels. */
+  .bg-jaali {
+    background-image:
+      repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 14px),
+      repeating-linear-gradient(-45deg, currentColor 0 1px, transparent 1px 14px);
+    opacity: 0.06;
+  }
+
+  .surface-card {
+    @apply rounded-2xl border border-gold-400/25 bg-card text-card-foreground shadow-royal;
+  }
+
+  /* Skeleton shimmer for loading states (feature 26). */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-muted;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/45 to-transparent;
+  }
+  .dark .skeleton::after {
+    @apply via-white/10;
+  }
+
+  .container-royal {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8;
+  }
+
+  /* Body copy stays inside a comfortable measure on wide screens. */
+  .measure {
+    max-width: 68ch;
+  }
+}
+
+@layer utilities {
+  .text-shadow-royal {
+    text-shadow: 0 2px 24px rgba(43, 8, 10, 0.55);
+  }
+
+  /**
+   * Hero entrance.
+   *
+   * Deliberately CSS rather than JS: a JS-driven entrance that starts at
+   * opacity 0 leaves the headline invisible if the animation never advances —
+   * which is exactly what happens in a backgrounded tab, where rAF is
+   * throttled, and anywhere hydration is slow or fails. A CSS animation with
+   * `fill-mode: both` always settles on the visible end state, needs no
+   * hydration, and keeps JS off the LCP path entirely.
+   *
+   * The global prefers-reduced-motion rule collapses the duration to ~0, so
+   * reduced-motion users land straight on the final state.
+   */
+  @keyframes royal-rise {
+    from {
+      opacity: 0;
+      transform: translateY(1.6rem);
+    }
+  }
+
+  .rise {
+    animation: royal-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .rise-1 { animation-delay: 60ms; }
+  .rise-2 { animation-delay: 120ms; }
+  .rise-3 { animation-delay: 180ms; }
+  .rise-4 { animation-delay: 240ms; }
+  .rise-5 { animation-delay: 300ms; }
+  .rise-6 { animation-delay: 360ms; }
+  .rise-7 { animation-delay: 420ms; }
+
+  /* Prices and timers use lining tabular figures so columns never jitter. */
+  .tnum {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+}
+
+/* ---- Reduced motion --------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Print (feature 30): a clean, ink-frugal menu printout ------------- */
+@media print {
+  /* Everything that is chrome rather than content disappears. */
+  header,
+  footer,
+  nav,
+  [data-print='hide'],
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background-image: none !important;
+    color: #000 !important;
+  }
+
+  .surface-card,
+  [data-print='card'] {
+    border: 1px solid #999 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Menu categories start on a fresh page; a category never splits mid-list. */
+  [data-print='category'] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 14pt;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Show link targets so a printed menu is still actionable. */
+  a[href^='http']::after,
+  a[href^='tel:']::after {
+    content: ' (' attr(href) ')';
+    font-size: 9pt;
+    color: #444 !important;
+  }
+
+  a[href^='#']::after,
+  a[href^='/']::after {
+    content: '';
+  }
+
+  img {
+    max-width: 100% !important;
+    filter: grayscale(100%);
+  }
+
+  @page {
+    margin: 14mm;
+  }
+}

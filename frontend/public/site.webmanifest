@@ -1,0 +1,22 @@
+{
+  "name": "Morsaab's — Royal Vegetarian Restaurant",
+  "short_name": "Morsaab's",
+  "description": "Pure vegetarian North Indian and Indo-Chinese dining near Dwarka Mor, New Delhi. Order online, book a table, or enquire about catering.",
+  "start_url": "/?utm_source=pwa&utm_medium=homescreen",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FDF8EE",
+  "theme_color": "#4A0E10",
+  "lang": "en-IN",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/apple-icon", "sizes": "180x180", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Order Online", "url": "/order?utm_source=pwa&utm_medium=shortcut", "description": "Delivery or takeaway" },
+    { "name": "Book a Table", "url": "/reserve?utm_source=pwa&utm_medium=shortcut", "description": "Reserve in 15 minutes" },
+    { "name": "Full Menu", "url": "/menu?utm_source=pwa&utm_medium=shortcut", "description": "Every dish and price" }
+  ]
+}

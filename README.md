@@ -11,7 +11,7 @@ A full-stack web application for Morsaab's restaurant featuring online reservati
 - **Admin Dashboard**: Content management interface
 
 ## Technology Stack
-- **Frontend**: React.js with Tailwind CSS
+- **Frontend**: Next.js 15 (App Router) + TypeScript, Tailwind CSS, Framer Motion, Radix primitives
 - **Backend**: Python FastAPI
 - **Database**: MongoDB
 - **Authentication**: JWT-based sessions
@@ -30,5 +30,21 @@ A full-stack web application for Morsaab's restaurant featuring online reservati
    ```bash
    git clone https://github.com/sayantansikdar/morsaabs.git
    cd morsaabs
-# morsaabs
-# morsaabs
+   ```
+
+2. **Frontend:**
+   ```bash
+   cd frontend
+   npm install
+   cp .env.example .env.local
+   npm run dev                  # http://localhost:3000
+   ```
+
+   The frontend runs standalone. With `BACKEND_API_URL` unset, the route
+   handlers under `app/api/` accept form submissions and log them instead of
+   forwarding, so every page and form is exercisable without the backend up.
+
+   See [frontend/README.md](frontend/README.md) for the project layout, the
+   design decisions worth knowing before changing them, and the list of
+   placeholders to replace before launch.
+

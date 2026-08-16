@@ -1,0 +1,39 @@
+import { ImageResponse } from 'next/og'
+
+/**
+ * Feature 44 — the apple-touch-icon.
+ *
+ * iOS ignores transparency and composites the icon onto white, so this one is
+ * drawn on a solid maroon tile with the safe-area padding Apple expects.
+ */
+export const runtime = 'nodejs'
+export const size = { width: 180, height: 180 }
+export const contentType = 'image/png'
+
+export default function AppleIcon() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#4A0E10',
+        }}
+      >
+        <svg width="128" height="128" viewBox="0 0 64 64" fill="none">
+          <path
+            d="M32 6 C46 11 54 21 54 33 v22 h-9 V34 c0-8-5.5-14-13-16.5C24.5 20 19 26 19 34 v21 h-9 V33 C10 21 18 11 32 6Z"
+            fill="#D4AF37"
+          />
+          <path d="M32 24c6 0 10 4.5 10 10v21H22V34c0-5.5 4-10 10-10Z" fill="#FAF0CE" />
+          <circle cx="32" cy="36" r="4.5" fill="#4A0E10" />
+          <rect x="10" y="55" width="44" height="4" rx="2" fill="#D4AF37" />
+        </svg>
+      </div>
+    ),
+    size
+  )
+}

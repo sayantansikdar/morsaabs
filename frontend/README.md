@@ -1,71 +1,105 @@
-# Getting Started with Create React App
+# Morsaab's — Web
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Next.js 15 (App Router) + TypeScript front end for Morsaab's, a royal North
+Indian and Indo-Chinese pure-vegetarian restaurant on Rama Park Road, Uttam
+Nagar, New Delhi.
 
-## Available Scripts
+## Running it
 
-In the project directory, you can run:
+```bash
+npm install
+cp .env.example .env.local
+npm run dev          # http://localhost:3000
+```
 
-### `npm start`
+It runs standalone. With `BACKEND_API_URL` unset, the route handlers in
+`app/api/` accept form submissions and log them rather than forwarding to the
+FastAPI service, so every page and flow works without the backend up.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+npm run typecheck    # tsc --noEmit
+npm run build        # production build
+npm start            # serve the production build
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+> Do not run `npm run build` while `npm run dev` is live — they share `.next`
+> and the build will pull the chunks out from under the dev server.
 
-### `npm test`
+## Layout
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+app/                    routes; one folder per page
+  api/                  route handlers → FastAPI (or accept-and-log)
+  globals.css           design tokens, ornament classes, print stylesheet
+  layout.tsx            chrome, fonts, metadata, JSON-LD, analytics
+  opengraph-image.tsx   social card, generated at build time
+  robots.ts sitemap.ts  generated from the content modules
+components/
+  ui/                   primitives (button, field, dialog, accordion, royal)
+  layout/               header, footer, page-header, legal-layout
+  sections/             page sections (hero, durbar-scene, menu-browser, …)
+  forms/                reservation, order, contact, account
+  shared/               search, breadcrumbs, cookie banner, floating actions
+content/                menu, services, blog, faqs, reviews, stories, media
+lib/                    site config, SEO, schema, analytics, consent, validation
+```
 
-### `npm run build`
+## Things worth knowing before you change them
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**`lib/site.ts` is the single source of truth** for the name, address, phone,
+hours, promises and payment methods. They appear in page copy, the JSON-LD, the
+sitemap and `llms.txt`; local SEO depends on them matching the Google Business
+Profile exactly. Change them here, never inline.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**The hero backdrop is drawn, not photographed.** `components/sections/durbar-scene.tsx`
+renders the palace courtyard as layered SVG with scroll parallax — a couple of
+kilobytes, on-palette by construction, no image request on the LCP path.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**The hero entrance is CSS, not JS.** A JS-driven entrance starting at
+`opacity: 0` leaves the headline invisible whenever the animation does not
+advance — backgrounded tabs throttle rAF, and hydration can fail. The `.rise`
+utility in `globals.css` always settles on the visible end state. Keep it that
+way. Below-the-fold sections still use Framer Motion `whileInView`, with a
+`<noscript>` fallback in `layout.tsx` that forces them visible without JS.
 
-### `npm run eject`
+**Dates must resolve on the client.** `useToday()` in
+`components/shared/use-error-focus.ts` exists because computing "today" at
+module scope bakes the *build* date into prerendered HTML — the day after a
+deploy the booking form would open on a date its own validator rejects.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+**Error summaries focus in an effect, not after `setState`.** `useErrorFocus`
+keys off a counter so the summary exists in the DOM before it is focused, and so
+a repeat submit with identical errors re-announces.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+**Colour tokens are contrast-checked.** `gold-600` is `#87691D` rather than the
+more obvious `#A07C22` because the latter only reaches 3.7:1 on the sand
+background — fine for an icon, short of AA for the eyebrow text that uses it.
+Re-check any change to the ramps against background, card *and* muted surfaces.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Placeholders to replace before launch
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Photography** — everything in `content/media.ts` points at stock. The alt
+  text is already written for the real subject. Team headshots especially must
+  be genuine photos of the actual staff.
+- **Reviews and case studies** — `content/reviews.ts` and `content/stories.ts`
+  are representative, not real. Mirror the actual Google reviews and get written
+  permission before naming any catering client.
+- **Legal pages** — `/privacy` and `/terms` are written to match how the site
+  actually behaves, but they are not legal advice. Have them reviewed against
+  the DPDP Act 2023.
+- **Accounts** — `/account` validates but does not authenticate. Wire it to a
+  real identity provider before enabling it, and never post credentials through
+  `lib/submit.ts`.
+- **Env vars** — set `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA_MEASUREMENT_ID` and
+  `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`. The site URL drives canonicals, the
+  sitemap and JSON-LD, so a wrong value silently breaks the SEO metadata.
 
-## Learn More
+## Deploying
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Vercel needs no configuration beyond the environment variables above.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# Bug fix: mobile menu alignment
+The existing AWS SAM stack in the repo root serves a **static** S3 bundle and
+cannot host this app as-is: SSR, the route handlers, the generated OG image and
+`sitemap.ts` all need a Node runtime. Either deploy the web app to Vercel and
+keep SAM for the API, or move the site behind Lambda/OpenNext. This is a real
+decision that has not been made yet — see the note in the project TODO.
