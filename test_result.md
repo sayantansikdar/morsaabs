@@ -1,56 +1,52 @@
-# Manual Testing Documentation - Morsaab's Restaurant
+# Test Report - Morsaab's Restaurant
 
-## Test Execution Report
 **Project:** Morsaab's Vegetarian Restaurant Website
-**Test Date:** $(date '+%B %d, %Y')
-**Test Lead:** Development Team
-**Environment:** Local Development
+**Stack under test:** FastAPI on Lambda + DynamoDB + React on CloudFront
+**Last verified:** 2026-08-15
 
-## Executive Summary
-All core functionality has been manually tested and verified. The application meets requirements for initial deployment.
+## Automated tests
 
-## Detailed Test Results
+`pytest tests/ -q` — 15 tests, all passing. They run against an in-memory
+DynamoDB (moto), so they need no AWS account and no running container.
 
-### 1. Frontend UI/UX Tests
-| Component | Test Case | Status | Notes |
-|-----------|-----------|--------|-------|
-| Homepage | Loads under 2s | ✅ PASS | Optimized images |
-| Navigation | Mobile responsive | ✅ PASS | Hamburger menu works |
-| Menu Page | Filtering works | ⚠️ PARTIAL | Needs category refinement |
-| Contact Form | Validation & submission | ✅ PASS | Added real-time validation |
+| Area | Covered |
+|------|---------|
+| Health | reports `database: connected` |
+| Menu | 9 categories, every item has a name, description and positive price |
+| Menu | still served when the database is unreachable |
+| Reservations | create, list, optional email omitted, defaults to `pending` |
+| Orders | create, defaults, prices survive the Decimal round-trip (139, 179.5) |
+| Contact | create, optional phone omitted |
+| Listings | newest first, empty to start |
+| Validation | missing field, wrong type and missing message all return 422 |
+| Lambda | Mangum `handler` is importable and bound |
 
-### 2. Backend API Tests
-| Endpoint | Method | Expected | Actual | Status |
-|----------|--------|----------|--------|--------|
-| /api/health | GET | 200 OK | 200 OK | ✅ PASS |
-| /api/menu | GET | JSON array | Valid JSON | ✅ PASS |
-| /api/reservations | POST | 201 Created | 201 Created | ✅ PASS |
-| /api/contact | POST | 200 OK | 200 OK | ✅ PASS |
+Run in CI on every push and pull request (`.github/workflows/ci.yml`), alongside
+a frontend production build and `sam validate --lint`.
 
-### 3. Cross-Browser Compatibility
-- **Chrome 128+**: All features functional
-- **Firefox 130+**: All features functional  
-- **Safari 17+**: Minor CSS fixes applied
-- **Edge 125+**: Fully compatible
+## Manual verification
 
-## Performance Metrics
-- **First Contentful Paint:** 1.3s
-- **Largest Contentful Paint:** 2.2s
-- **Time to Interactive:d API P95:** 210ms
+Performed locally on 2026-08-15.
 
-## Issues Resolved During Testing
-1. Fixed CORS configuration blocking frontend requests
-2. Resolved mobile menu z-index conflict
-3. Optimized database connection pooling
-4. Fixed form submission feedback delay
+| Check | Result |
+|-------|--------|
+| `python server.py` against dynamodb-local | All 7 endpoints return expected payloads |
+| `sam local start-api` (real Lambda + API Gateway path) | Same results as uvicorn |
+| Frontend dev server (`npm start`) | Compiles clean, loads menu from the API |
+| Frontend production build | Compiles clean; calls relative `/api`, no localhost baked in |
+| `sam build` | Succeeds; 37 MB package, well under the 250 MB limit |
+| `sam validate --lint` | Template valid |
 
-## Recommendations
-1. Implement automated tests for regression testing
-2. Add monitoring for API endpoints
-3. Conduct user acceptance testing with stakeholders
+## Not yet verified
 
-## Sign-off
-Application is ready for stakeholder review.
+- **Nothing has been deployed to AWS.** Every result above is local or emulated;
+  the CloudFront/S3/API Gateway wiring in `template.yaml` has not been exercised
+  against real infrastructure.
+- No frontend unit or end-to-end tests exist.
+- No load testing, and no cross-browser testing on real devices.
 
-**Test Lead:** ____________________
-**Date:** $(date '+%Y-%m-%d')
+## Known issues
+
+- `GET /api/reservations` and `GET /api/orders` are unauthenticated and return
+  customer names and phone numbers.
+- Nothing notifies the restaurant when a reservation or order comes in.
