@@ -1,0 +1,130 @@
+name: Deploy to GitHub Pages
+
+# Replaces the old static.yml, which uploaded `path: '.'` — the raw repository,
+# with no build step at all. There is no index.html at the repo root, so Pages
+# served a 404 and had never worked.
+#
+# Pages is a static file host: no Node runtime, so the site is built with
+# STATIC_EXPORT=1 (output: 'export'). The API route handlers are not exported
+# and cannot run here — see the notice rendered on the forms.
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a deployment mid-flight; queue the next one instead.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build static export
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Install
+        run: npm ci
+
+      - name: Build static export
+        env:
+          STATIC_EXPORT: "1"
+          # This repo is served from https://<user>.github.io/morsaabs/, so every
+          # asset and route needs the subpath. configure-pages resolves the
+          # origin; the path is fixed by the repo name.
+          BASE_PATH: /morsaabs
+          NEXT_PUBLIC_BASE_PATH: /morsaabs
+          NEXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.origin }}/morsaabs
+          NEXT_PUBLIC_STATIC_EXPORT: "1"
+          # Leave NEXT_PUBLIC_API_BASE unset until the FastAPI backend is
+          # deployed and its CORS allows this origin. Until then the forms show
+          # a call-us notice instead of failing silently.
+          NEXT_PUBLIC_API_BASE: ${{ vars.NEXT_PUBLIC_API_BASE }}
+          NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+          NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }}
+        run: npm run build
+
+      # Pages runs Jekyll over the artifact unless told not to, and Jekyll
+      # silently drops every directory beginning with an underscore — which is
+      # all of _next/, i.e. all the JS and CSS.
+      - name: Disable Jekyll processing
+        run: touch out/.nojekyll
+
+      - name: Verify the export before publishing
+        run: |
+          set -euo pipefail
+          fail=0
+
+          need() {
+            if [ ! -e "out/$1" ]; then
+              echo "::error::export is missing $1"; fail=1
+            else
+              echo "ok  $1"
+            fi
+          }
+          need index.html
+          need 404.html
+          need .nojekyll
+          need sitemap.xml
+          need robots.txt
+          need llms.txt
+          need menu/index.html
+          need services/catering/index.html
+          need blog/dum-pukht-the-lost-art-of-sealed-cooking/index.html
+
+          # The single most likely way this breaks: assets emitted at the domain
+          # root while the site is served from /morsaabs, giving a blank page.
+          if ! grep -q '"/morsaabs/_next/' out/index.html; then
+            echo "::error::index.html does not reference /morsaabs/_next/ — basePath did not apply"
+            fail=1
+          else
+            echo "ok  assets are prefixed with /morsaabs"
+          fi
+
+          pages=$(find out -name index.html | wc -l | tr -d ' ')
+          echo "ok  $pages HTML pages exported"
+          [ "$pages" -ge 20 ] || { echo "::error::only $pages pages exported, expected 20+"; fail=1; }
+
+          exit $fail
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/out
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
