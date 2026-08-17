@@ -55,8 +55,12 @@ export function ArchFrame({
         className="absolute -inset-[3px] bg-gold-leaf"
         style={{ clipPath: `url(#${cusped ? 'mughal-arch-cusped' : 'mughal-arch'})` }}
       />
+      {/* A muted fill sits between the gilt edge and the image. Without it the
+          gold gradient shows through until the photograph loads, which on a
+          static host — where images come straight from a third-party CDN with
+          no optimiser in front — is a bright blob for the whole of that wait. */}
       <div
-        className={cn('relative size-full overflow-hidden', innerClassName)}
+        className={cn('relative size-full overflow-hidden bg-muted', innerClassName)}
         style={{ clipPath: `url(#${cusped ? 'mughal-arch-cusped' : 'mughal-arch'})` }}
       >
         {children}

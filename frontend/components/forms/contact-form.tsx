@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Send, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select, Textarea, FieldError } from '@/components/ui/field'
-import { ErrorSummary } from '@/components/shared/form-parts'
+import { ErrorSummary, SubmissionsUnavailableNotice } from '@/components/shared/form-parts'
 import { useErrorFocus } from '@/components/shared/use-error-focus'
 import { contactSchema, fieldErrors } from '@/lib/validation'
-import { submitForm } from '@/lib/submit'
+import { submitForm, SUBMISSIONS_UNAVAILABLE } from '@/lib/submit'
 import { track } from '@/lib/analytics'
 import { site } from '@/lib/site'
 
@@ -76,6 +76,14 @@ export function ContactForm() {
 
   return (
     <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-5">
+      {SUBMISSIONS_UNAVAILABLE && (
+        <SubmissionsUnavailableNotice
+          phone={site.phone}
+          phoneDisplay={site.phoneDisplay}
+          action="send a message"
+        />
+      )}
+
       <ErrorSummary ref={summaryRef} errors={errors} labels={LABELS} />
 
       <div className="grid gap-5 sm:grid-cols-2">

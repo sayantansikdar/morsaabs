@@ -9,6 +9,13 @@ import { SITE_URL } from '@/lib/site'
  * (the menu, the journal, the service pages) and pointed at /llms.txt, which
  * gives them a cleaner summary than scraping the HTML would.
  */
+/**
+ * Rendered at build time so it exists as a real robots.txt file in a static
+ * export — without this Next treats it as a dynamic route and refuses to
+ * export the build.
+ */
+export const dynamic = 'force-static'
+
 export default function robots(): MetadataRoute.Robots {
   const disallow = ['/api/', '/thank-you', '/account', '/_next/']
 
