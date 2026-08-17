@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { AlertTriangle, CheckCircle2, PartyPopper } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, PartyPopper, PhoneCall, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -156,4 +156,58 @@ export function makeReference(prefix: string): string {
   const stamp = `${now.getFullYear().toString().slice(2)}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`
   const random = Math.random().toString(36).slice(2, 6).toUpperCase()
   return `${prefix}-${stamp}-${random}`
+}
+
+/**
+ * Shown above a form when the build has nowhere to send submissions — a static
+ * export with no backend origin configured.
+ *
+ * It goes *above* the fields rather than surfacing on submit: letting someone
+ * fill in a delivery address and then telling them it was never going to work
+ * is worse than telling them up front. The form stays usable so the menu and
+ * pricing still work; only the send path is redirected to a phone call.
+ */
+export function SubmissionsUnavailableNotice({
+  phone,
+  phoneDisplay,
+  action,
+}: {
+  phone: string
+  phoneDisplay: string
+  action: string
+}) {
+  const whatsapp = `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(
+    `Hello Morsaab's, I'd like to ${action}.`
+  )}`
+
+  return (
+    <div
+      role="note"
+      className="mb-6 rounded-2xl border-2 border-gold-400/60 bg-gold-400/10 p-5"
+    >
+      <p className="flex items-start gap-2.5 font-display text-lg font-bold text-foreground">
+        <PhoneCall className="mt-0.5 size-5 shrink-0 text-gold-600 dark:text-gold-300" aria-hidden="true" />
+        Please call to {action}
+      </p>
+      <p className="measure mt-2 text-sm leading-relaxed text-muted-foreground">
+        Online submission is not connected on this version of the site yet, so
+        this form cannot send. Ringing the restaurant is the fastest route — and
+        during service hours a person answers.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2.5">
+        <Button asChild variant="primary">
+          <a href={`tel:${phone}`}>
+            <PhoneCall aria-hidden="true" />
+            {phoneDisplay}
+          </a>
+        </Button>
+        <Button asChild variant="outline">
+          <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+            <MessageCircle aria-hidden="true" />
+            WhatsApp
+          </a>
+        </Button>
+      </div>
+    </div>
+  )
 }

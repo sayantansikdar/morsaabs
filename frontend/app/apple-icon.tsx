@@ -7,6 +7,8 @@ import { ImageResponse } from 'next/og'
  * drawn on a solid maroon tile with the safe-area padding Apple expects.
  */
 export const runtime = 'nodejs'
+// Generated once at build time so it exists as a real PNG in a static export.
+export const dynamic = 'force-static'
 export const size = { width: 180, height: 180 }
 export const contentType = 'image/png'
 

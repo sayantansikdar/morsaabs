@@ -6,10 +6,10 @@ import { CalendarCheck, Clock, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/field'
 import { ConfirmDialog } from '@/components/ui/dialog'
-import { ErrorSummary } from '@/components/shared/form-parts'
+import { ErrorSummary, SubmissionsUnavailableNotice } from '@/components/shared/form-parts'
 import { useErrorFocus, useToday } from '@/components/shared/use-error-focus'
 import { reservationSchema, fieldErrors } from '@/lib/validation'
-import { submitForm } from '@/lib/submit'
+import { submitForm, SUBMISSIONS_UNAVAILABLE } from '@/lib/submit'
 import { track } from '@/lib/analytics'
 import { site } from '@/lib/site'
 
@@ -113,6 +113,14 @@ export function ReservationForm() {
   return (
     <>
       <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-5">
+        {SUBMISSIONS_UNAVAILABLE && (
+          <SubmissionsUnavailableNotice
+            phone={site.phone}
+            phoneDisplay={site.phoneDisplay}
+            action="book a table"
+          />
+        )}
+
         <ErrorSummary ref={summaryRef} errors={errors} labels={{ ...LABELS, form: 'Submission' }} />
 
         <div className="grid gap-5 sm:grid-cols-2">

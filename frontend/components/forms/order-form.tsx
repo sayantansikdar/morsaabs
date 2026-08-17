@@ -7,11 +7,11 @@ import { Minus, Plus, Trash2, ShoppingBag, Bike, Store, Clock, Tag, Check } from
 import { Button } from '@/components/ui/button'
 import { Field, Input, Textarea, Select } from '@/components/ui/field'
 import { ConfirmDialog } from '@/components/ui/dialog'
-import { ErrorSummary } from '@/components/shared/form-parts'
+import { ErrorSummary, SubmissionsUnavailableNotice } from '@/components/shared/form-parts'
 import { useErrorFocus } from '@/components/shared/use-error-focus'
 import { useCart } from '@/components/cart-provider'
 import { orderSchema, fieldErrors } from '@/lib/validation'
-import { submitForm } from '@/lib/submit'
+import { submitForm, SUBMISSIONS_UNAVAILABLE } from '@/lib/submit'
 import { track } from '@/lib/analytics'
 import { site, formatPrice } from '@/lib/site'
 import { cn } from '@/lib/utils'
@@ -321,7 +321,15 @@ export function OrderForm() {
           <h2 className="font-display text-2xl font-bold text-foreground">Your details</h2>
 
           <div className="mt-6">
-            <ErrorSummary ref={summaryRef} errors={errors} labels={LABELS} />
+            {SUBMISSIONS_UNAVAILABLE && (
+          <SubmissionsUnavailableNotice
+            phone={site.phone}
+            phoneDisplay={site.phoneDisplay}
+            action="place an order"
+          />
+        )}
+
+        <ErrorSummary ref={summaryRef} errors={errors} labels={LABELS} />
           </div>
 
           {/* Mode toggle */}

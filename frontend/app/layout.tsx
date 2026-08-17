@@ -17,7 +17,7 @@ import {
   StickyMobileCTA,
 } from '@/components/shared/floating-actions'
 import { restaurantSchema, websiteSchema } from '@/lib/schema'
-import { SITE_URL, site } from '@/lib/site'
+import { SITE_URL, site, BASE_PATH } from '@/lib/site'
 
 /* next/font self-hosts and preloads these, so there is no render-blocking
    request to Google and no flash of invisible text. */
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
   // Feature 48 — Search Console verification.
   verification: { google: site.googleSiteVerification },
   formatDetection: { telephone: true, address: true },
-  manifest: '/site.webmanifest',
+  manifest: `${BASE_PATH}/manifest.webmanifest`,
 }
 
 export const viewport: Viewport = {

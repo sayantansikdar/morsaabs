@@ -12,6 +12,8 @@ import { site } from '@/lib/site'
  * element with more than one child needs an explicit display value.
  */
 export const runtime = 'nodejs'
+// Generated once at build time so it exists as a real PNG in a static export.
+export const dynamic = 'force-static'
 export const alt = "Morsaab's — A Royal Taste of India. Pure vegetarian restaurant near Dwarka Mor, New Delhi."
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'

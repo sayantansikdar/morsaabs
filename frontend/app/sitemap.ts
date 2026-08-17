@@ -10,6 +10,13 @@ import { posts } from '@/content/blog'
  * Priorities are relative, not absolute: the conversion pages and the menu
  * outrank the legal pages, which are listed only so they are discoverable.
  */
+/**
+ * Rendered at build time so it exists as a real sitemap.xml file in a static
+ * export — without this Next treats it as a dynamic route and refuses to
+ * export the build.
+ */
+export const dynamic = 'force-static'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const reviewed = new Date(LAST_UPDATED)
 

@@ -7,6 +7,21 @@
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://www.morsaabs.com'
 
+/**
+ * Subpath the site is served from — '' on a domain root, '/morsaabs' on
+ * GitHub Pages.
+ *
+ * next/link, next/image and the file-convention icons get basePath applied
+ * automatically. Anything we hand-write as an absolute path does not, so it
+ * has to go through this.
+ */
+export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
+/** Prefixes a root-relative path with the deployment's basePath. */
+export function asset(path: string): string {
+  return `${BASE_PATH}${path.startsWith('/') ? path : `/${path}`}`
+}
+
 export const site = {
   name: "Morsaab's",
   nameDevanagari: 'मोरसाब्स',
