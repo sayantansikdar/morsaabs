@@ -1,0 +1,49 @@
+name: Lint workflows
+
+# Each workflow is exercised only by its own triggers — pages.yml, for one, runs
+# solely on push to main — so a syntax, expression, or context error in a
+# workflow file passes PR review and only surfaces after merge, breaking the
+# deploy for everyone. (That is exactly how an invalid `secrets` reference in a
+# step `if:` took the Pages deploy down once.) actionlint validates every
+# workflow on any PR that touches one, so the error is caught on the PR instead.
+#
+# shellcheck integration is disabled (-shellcheck=): the point here is catching
+# workflow-level mistakes, and enabling shellcheck would also lint the existing
+# run: scripts — a separate cleanup. It can be switched on later once those pass.
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # Pinned to the release used to validate the deploy-workflow fix. The
+      # binary is pulled straight from the GitHub release, so no third-party
+      # action enters the supply chain.
+      - name: Install actionlint
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+        run: |
+          curl -sSfL "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            | tar -xz actionlint
+          ./actionlint -version
+
+      # No file arguments: actionlint discovers and checks every workflow in
+      # .github/workflows/.
+      - name: Lint workflows
+        run: ./actionlint -shellcheck= -color
