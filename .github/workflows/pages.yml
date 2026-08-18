@@ -67,6 +67,14 @@ jobs:
           NEXT_PUBLIC_API_BASE: ${{ vars.NEXT_PUBLIC_API_BASE }}
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
           NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          # Datadog RUM. Both IDs ship in the browser bundle and are not secret,
+          # so they live in repo Variables next to the GA ID. RUM stays disabled
+          # until both are set. The commit SHA tags each deploy as a release.
+          NEXT_PUBLIC_DD_APPLICATION_ID: ${{ vars.NEXT_PUBLIC_DD_APPLICATION_ID }}
+          NEXT_PUBLIC_DD_CLIENT_TOKEN: ${{ vars.NEXT_PUBLIC_DD_CLIENT_TOKEN }}
+          NEXT_PUBLIC_DD_SITE: us5.datadoghq.com
+          NEXT_PUBLIC_DD_ENV: production
+          NEXT_PUBLIC_DD_VERSION: ${{ github.sha }}
         run: npm run build
 
       # Pages runs Jekyll over the artifact unless told not to, and Jekyll
