@@ -76,6 +76,16 @@ more obvious `#A07C22` because the latter only reaches 3.7:1 on the sand
 background — fine for an icon, short of AA for the eyebrow text that uses it.
 Re-check any change to the ramps against background, card *and* muted surfaces.
 
+**Datadog RUM is lazy and consent-gated.** `components/shared/datadog-rum.tsx`
+imports the SDK with a dynamic `import()` inside an effect, so the ~190 kB
+browser SDK lands in its own async chunk and never enters the initial JS budget
+(kept at ~103 kB) — keep it that way. It boots with `trackingConsent` tied to
+the same cookie decision that gates GA (`lib/consent.ts`), so nothing is
+collected and no session cookie is written until the visitor accepts; the
+`CONSENT_EVENT` listener flips it live. Region is US5 — set the two IDs via
+`NEXT_PUBLIC_DD_APPLICATION_ID` / `NEXT_PUBLIC_DD_CLIENT_TOKEN` (both are
+browser-public, not secrets), and RUM stays off entirely until both are set.
+
 ## Placeholders to replace before launch
 
 - **Photography** — everything in `content/media.ts` points at stock. The alt
@@ -93,6 +103,10 @@ Re-check any change to the ramps against background, card *and* muted surfaces.
 - **Env vars** — set `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA_MEASUREMENT_ID` and
   `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`. The site URL drives canonicals, the
   sitemap and JSON-LD, so a wrong value silently breaks the SEO metadata.
+- **Datadog RUM** — add `NEXT_PUBLIC_DD_APPLICATION_ID` and
+  `NEXT_PUBLIC_DD_CLIENT_TOKEN` from the Datadog app (RUM › Applications). In CI
+  they come from repo Variables; the Pages workflow already wires them and tags
+  each deploy with the commit SHA. Leave unset to keep monitoring off.
 
 ## Deploying
 
