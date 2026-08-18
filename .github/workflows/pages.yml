@@ -88,17 +88,25 @@ jobs:
         run: touch out/.nojekyll
 
       # Upload browser source maps to Datadog so minified RUM errors resolve to
-      # real file/line stack traces. Gated on the API key secret, so the deploy
-      # still works (skipped, not failed) until the key is added. The release
-      # version must equal the RUM `version` — both are the commit SHA, set on
+      # real file/line stack traces. The API key is a repo secret, passed to this
+      # step's env; when it is unset the step logs and exits 0, so the deploy is
+      # unaffected until the key is added. (GitHub forbids the `secrets` context
+      # in `if:`, so the gate is this shell check, not a step condition.) The
+      # release version must equal the RUM `version` — both the commit SHA, set on
       # NEXT_PUBLIC_DD_VERSION above — or Datadog can't pair an error to its map.
       # DATADOG_SITE must match the account region or the upload lands nowhere.
       - name: Upload source maps to Datadog
-        if: ${{ secrets.DATADOG_API_KEY != '' }}
+        # A bad key or a Datadog hiccup must never block the site deploy — worst
+        # case is one release whose RUM errors are not de-minified.
+        continue-on-error: true
         env:
           DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}
           DATADOG_SITE: us5.datadoghq.com
         run: |
+          if [ -z "${DATADOG_API_KEY:-}" ]; then
+            echo "DATADOG_API_KEY not set — skipping source map upload."
+            exit 0
+          fi
           npx --yes @datadog/datadog-ci@5 sourcemaps upload out/_next/static \
             --service=morsaabs-web \
             --release-version="$GITHUB_SHA" \
@@ -106,9 +114,14 @@ jobs:
 
       # Datadog has its own copy now; the maps must not ship (they expose the
       # original source) and their sourceMappingURL comments must not dangle.
+      # Self-gates on the maps actually existing — a no-op when none were built
+      # (i.e. no API key), so no step condition is needed.
       - name: Strip source maps from the published site
-        if: ${{ secrets.DATADOG_API_KEY != '' }}
         run: |
+          if [ -z "$(find out -name '*.map' -type f -print -quit)" ]; then
+            echo "No source maps present — nothing to strip."
+            exit 0
+          fi
           find out -name '*.map' -type f -delete
           # Remove the now-dangling sourceMappingURL comments — JS uses //# … and
           # CSS uses /*# … */ — so nothing 404s for the map in browser devtools.
