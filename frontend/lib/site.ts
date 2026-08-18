@@ -17,6 +17,23 @@ export const SITE_URL =
  */
 export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
+/**
+ * Origin of SITE_URL, with any subpath stripped.
+ *
+ * This is what `metadataBase` must be set to. Next applies basePath itself to
+ * file-convention metadata images (opengraph-image, apple-icon), so giving it a
+ * metadataBase that already contains the subpath emits /morsaabs/morsaabs/…
+ * and every social card 404s. Canonicals are written as absolute URLs from
+ * SITE_URL instead, so they are unaffected by this.
+ */
+export const SITE_ORIGIN = (() => {
+  try {
+    return new URL(SITE_URL).origin
+  } catch {
+    return SITE_URL
+  }
+})()
+
 /** Prefixes a root-relative path with the deployment's basePath. */
 export function asset(path: string): string {
   return `${BASE_PATH}${path.startsWith('/') ? path : `/${path}`}`

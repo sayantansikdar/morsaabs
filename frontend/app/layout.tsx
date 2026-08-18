@@ -17,7 +17,7 @@ import {
   StickyMobileCTA,
 } from '@/components/shared/floating-actions'
 import { restaurantSchema, websiteSchema } from '@/lib/schema'
-import { SITE_URL, site, BASE_PATH } from '@/lib/site'
+import { SITE_URL, SITE_ORIGIN, site, BASE_PATH } from '@/lib/site'
 
 /* next/font self-hosts and preloads these, so there is no render-blocking
    request to Google and no flash of invisible text. */
@@ -43,7 +43,7 @@ const script = Great_Vibes({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: "Morsaab's — Royal Vegetarian Restaurant near Dwarka Mor, New Delhi",
     template: "%s | Morsaab's",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     'food delivery Uttam Nagar 110059',
     "Morsaab's",
   ],
-  alternates: { canonical: '/' },
+  alternates: { canonical: SITE_URL },
   robots: {
     index: true,
     follow: true,
