@@ -39,6 +39,13 @@ export function asset(path: string): string {
   return `${BASE_PATH}${path.startsWith('/') ? path : `/${path}`}`
 }
 
+/** Parses a 0–100 sample-rate env var, clamping bad or out-of-range values. */
+function sampleRate(value: string | undefined, fallback: number): number {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return fallback
+  return Math.min(100, Math.max(0, n))
+}
+
 export const site = {
   name: "Morsaab's",
   nameDevanagari: 'मोरसाब्स',
@@ -134,6 +141,27 @@ export const site = {
   googleSiteVerification:
     process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? 'google-site-verification-token-placeholder',
   gaMeasurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? '',
+
+  /**
+   * Datadog Real User Monitoring (browser). Both IDs are shipped in the client
+   * bundle and are meant to be public — the client token is write-only intake,
+   * not a secret. RUM only initialises when both are set, so leaving them empty
+   * disables it and injects nothing.
+   */
+  datadog: {
+    applicationId: process.env.NEXT_PUBLIC_DD_APPLICATION_ID ?? '',
+    clientToken: process.env.NEXT_PUBLIC_DD_CLIENT_TOKEN ?? '',
+    // Datadog is region-partitioned; this account is on US5.
+    site: process.env.NEXT_PUBLIC_DD_SITE ?? 'us5.datadoghq.com',
+    service: process.env.NEXT_PUBLIC_DD_SERVICE ?? 'morsaabs-web',
+    env: process.env.NEXT_PUBLIC_DD_ENV ?? 'production',
+    // Set per-deploy (the workflow passes the commit SHA) so errors and Core Web
+    // Vitals can be attributed to a release. Empty locally.
+    version: process.env.NEXT_PUBLIC_DD_VERSION ?? '',
+    sessionSampleRate: sampleRate(process.env.NEXT_PUBLIC_DD_SESSION_SAMPLE_RATE, 100),
+    // Session Replay records the DOM, so it is off by default; opt in per-env.
+    replaySampleRate: sampleRate(process.env.NEXT_PUBLIC_DD_REPLAY_SAMPLE_RATE, 0),
+  },
 } as const
 
 export const fullAddress = `${site.address.street}, ${site.address.road}, ${site.address.locality}, New ${site.address.region} – ${site.address.postalCode}`

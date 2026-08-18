@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/footer'
 import { ScrollProgress } from '@/components/shared/scroll-progress'
 import { CookieBanner } from '@/components/shared/cookie-banner'
 import { Analytics } from '@/components/shared/analytics'
+import { DatadogRum } from '@/components/shared/datadog-rum'
 import { JsonLd } from '@/components/shared/json-ld'
 import { ArchClipDefs } from '@/components/ui/royal'
 import {
@@ -154,6 +155,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Providers>
 
         <Analytics measurementId={site.gaMeasurementId} />
+        <DatadogRum />
       </body>
     </html>
   )
