@@ -25,6 +25,15 @@ export function pageMeta({
   modifiedTime?: string
 }): Metadata {
   const url = `${SITE_URL}${path}`
+  // Declaring an `openGraph` block on a page shadows the file-convention
+  // opengraph-image from app/, so interior pages ship with no share image
+  // unless it is named explicitly. SITE_URL already carries any basePath.
+  const ogImage = {
+    url: `${SITE_URL}/opengraph-image`,
+    width: 1200,
+    height: 630,
+    alt: `${site.name} — ${site.tagline}`,
+  }
   return {
     title,
     description,
@@ -40,6 +49,7 @@ export function pageMeta({
       description,
       siteName: site.name,
       locale: 'en_IN',
+      images: [ogImage],
       ...(publishedTime ? { publishedTime } : {}),
       ...(modifiedTime ? { modifiedTime } : {}),
     },
@@ -48,6 +58,7 @@ export function pageMeta({
       title,
       description,
       site: '@morsaabs',
+      images: [ogImage.url],
     },
   }
 }
