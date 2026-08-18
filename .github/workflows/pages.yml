@@ -75,6 +75,10 @@ jobs:
           NEXT_PUBLIC_DD_SITE: us5.datadoghq.com
           NEXT_PUBLIC_DD_ENV: production
           NEXT_PUBLIC_DD_VERSION: ${{ github.sha }}
+          # Generate browser source maps only when the upload step below can run
+          # (i.e. the API key secret exists). They are stripped from the artifact
+          # afterwards, so visitors never receive them.
+          DD_SOURCEMAPS: ${{ secrets.DATADOG_API_KEY != '' && '1' || '' }}
         run: npm run build
 
       # Pages runs Jekyll over the artifact unless told not to, and Jekyll
@@ -82,6 +86,34 @@ jobs:
       # all of _next/, i.e. all the JS and CSS.
       - name: Disable Jekyll processing
         run: touch out/.nojekyll
+
+      # Upload browser source maps to Datadog so minified RUM errors resolve to
+      # real file/line stack traces. Gated on the API key secret, so the deploy
+      # still works (skipped, not failed) until the key is added. The release
+      # version must equal the RUM `version` — both are the commit SHA, set on
+      # NEXT_PUBLIC_DD_VERSION above — or Datadog can't pair an error to its map.
+      # DATADOG_SITE must match the account region or the upload lands nowhere.
+      - name: Upload source maps to Datadog
+        if: ${{ secrets.DATADOG_API_KEY != '' }}
+        env:
+          DATADOG_API_KEY: ${{ secrets.DATADOG_API_KEY }}
+          DATADOG_SITE: us5.datadoghq.com
+        run: |
+          npx --yes @datadog/datadog-ci@5 sourcemaps upload out/_next/static \
+            --service=morsaabs-web \
+            --release-version="$GITHUB_SHA" \
+            --minified-path-prefix=https://sayantansikdar.github.io/morsaabs/_next/static
+
+      # Datadog has its own copy now; the maps must not ship (they expose the
+      # original source) and their sourceMappingURL comments must not dangle.
+      - name: Strip source maps from the published site
+        if: ${{ secrets.DATADOG_API_KEY != '' }}
+        run: |
+          find out -name '*.map' -type f -delete
+          # Remove the now-dangling sourceMappingURL comments — JS uses //# … and
+          # CSS uses /*# … */ — so nothing 404s for the map in browser devtools.
+          find out \( -name '*.js' -o -name '*.css' \) -type f \
+            -exec sed -i 's|/\*# sourceMappingURL=[^*]*\*/||g; s|//# sourceMappingURL=[^[:space:]]*||g' {} +
 
       - name: Verify the export before publishing
         run: |

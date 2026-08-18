@@ -21,6 +21,13 @@ const basePath = process.env.BASE_PATH ?? ''
 const nextConfig = {
   reactStrictMode: true,
 
+  // Datadog RUM error tracking needs browser source maps to turn minified stack
+  // traces back into real file/line references. They are generated only when the
+  // CI upload step will consume them (DD_SOURCEMAPS=1), and that step strips them
+  // from the published artifact afterwards — so production visitors never
+  // download them and no original source is exposed.
+  productionBrowserSourceMaps: process.env.DD_SOURCEMAPS === '1',
+
   ...(isStaticExport ? { output: 'export' } : {}),
 
   basePath: basePath || undefined,
