@@ -39,6 +39,20 @@ const nextConfig = {
   // index.html inside a folder rather than a bare `about.html`.
   trailingSlash: isStaticExport,
 
+  /**
+   * The admin dashboard is server-rendered and talks to Postgres on every
+   * request, so it cannot exist in a static export — `output: 'export'`
+   * prerenders every route, which would run database queries at build time in
+   * CI where there is no database.
+   *
+   * Admin route files are therefore named `page.node.tsx` / `layout.node.tsx`,
+   * and `node.tsx` is only a recognised page extension when we are *not*
+   * exporting. In the static build those files are just colocated modules that
+   * define no route, so GitHub Pages keeps publishing the public site alone.
+   * Remove this once the static export target is retired in favour of Vercel.
+   */
+  pageExtensions: isStaticExport ? ['tsx', 'ts'] : ['node.tsx', 'node.ts', 'tsx', 'ts'],
+
   // There is a lockfile above this directory too; pin the trace root here so
   // Next does not infer the home directory as the workspace root.
   outputFileTracingRoot: __dirname,

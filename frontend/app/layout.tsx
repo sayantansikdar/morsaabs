@@ -5,6 +5,7 @@ import './globals.css'
 import { Providers } from '@/components/providers'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { SiteChrome } from '@/components/layout/site-chrome'
 import { ScrollProgress } from '@/components/shared/scroll-progress'
 import { CookieBanner } from '@/components/shared/cookie-banner'
 import { Analytics } from '@/components/shared/analytics'
@@ -127,31 +128,39 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd data={websiteSchema()} />
 
         <Providers>
-          <SkipLink />
-          <ScrollProgress />
           <ArchClipDefs />
 
-          {/* Focus target for "back to top". */}
-          <span id="top" tabIndex={-1} className="sr-only">
-            Top of page
-          </span>
+          {/* The dashboard opts out of all of this — see SiteChrome. */}
+          <SiteChrome
+            header={
+              <>
+                <SkipLink />
+                <ScrollProgress />
 
-          <Header />
+                {/* Focus target for "back to top". */}
+                <span id="top" tabIndex={-1} className="sr-only">
+                  Top of page
+                </span>
 
-          <main id="main" tabIndex={-1} className="pt-[var(--header-h)] focus:outline-none">
+                <Header />
+              </>
+            }
+            footer={<Footer />}
+            floating={
+              <>
+                {/* Bottom-bar clearance so the last of the footer is never trapped
+                    under the sticky mobile CTA. */}
+                <div aria-hidden="true" className="h-20 md:hidden" data-print="hide" />
+
+                <StickyMobileCTA />
+                <BackToTop />
+                <FloatingContact />
+                <CookieBanner />
+              </>
+            }
+          >
             {children}
-          </main>
-
-          <Footer />
-
-          {/* Bottom-bar clearance so the last of the footer is never trapped
-              under the sticky mobile CTA. */}
-          <div aria-hidden="true" className="h-20 md:hidden" data-print="hide" />
-
-          <StickyMobileCTA />
-          <BackToTop />
-          <FloatingContact />
-          <CookieBanner />
+          </SiteChrome>
         </Providers>
 
         <Analytics measurementId={site.gaMeasurementId} />
