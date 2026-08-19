@@ -8,6 +8,13 @@
       "when": 1787155346350,
       "tag": "0000_complex_iron_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787163471180,
+      "tag": "0001_blushing_maverick",
+      "breakpoints": true
     }
   ]
 }
