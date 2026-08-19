@@ -175,8 +175,14 @@ export const orders = pgTable(
     stripeSessionId: text('stripe_session_id'),
     stripePaymentIntentId: text('stripe_payment_intent_id'),
 
-    /** Integer rupees, summed from order_items at write time. */
+    /**
+     * Integer rupees. Always recomputed server-side from the current menu
+     * price of each line — never taken from the client, which would let a
+     * crafted request set its own prices.
+     */
     subtotal: integer('subtotal').notNull().default(0),
+    discount: integer('discount').notNull().default(0),
+    promoCode: varchar('promo_code', { length: 40 }),
     deliveryFee: integer('delivery_fee').notNull().default(0),
     total: integer('total').notNull().default(0),
 
