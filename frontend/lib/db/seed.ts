@@ -12,8 +12,12 @@
  * because after go-live the database is the source of truth, not this file.
  */
 
-import 'dotenv/config'
+import { config } from 'dotenv'
 import { eq, and } from 'drizzle-orm'
+
+// Run outside Next, so .env.local is not picked up automatically.
+config({ path: ['.env.local', '.env'] })
+
 import { getDb } from './index'
 import { menuCategories, menuItems } from './schema'
 import { menu } from '../../content/menu'

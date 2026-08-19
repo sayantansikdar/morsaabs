@@ -1,5 +1,9 @@
-import 'dotenv/config'
+import { config } from 'dotenv'
 import { defineConfig } from 'drizzle-kit'
+
+// Next.js reads .env.local on its own; drizzle-kit runs outside Next, so it has
+// to be loaded explicitly. .env.local wins, matching Next's own precedence.
+config({ path: ['.env.local', '.env'] })
 
 /**
  * Migrations are generated into lib/db/migrations and applied with
