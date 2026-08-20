@@ -1,5 +1,6 @@
 import { getMenu } from '@/lib/db/queries'
 import { MenuEditor } from './menu-editor'
+import { requireAdminOrNull } from '@/lib/admin-auth'
 
 /**
  * Menu management.
@@ -11,6 +12,11 @@ import { MenuEditor } from './menu-editor'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminMenuPage() {
+  // Resource-level gate. The layout's refusal only hides the UI; without this
+  // the page still runs and its rows travel in the RSC payload. See
+  // requireAdminOrNull.
+  if (!(await requireAdminOrNull())) return null
+
   const categories = await getMenu({ includeUnavailable: true })
   const dishCount = categories.reduce((total, category) => total + category.items.length, 0)
 

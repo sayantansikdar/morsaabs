@@ -1,6 +1,7 @@
 import { listReservations } from '@/lib/db/queries'
 import { StatusSelect } from '../_components/status-select'
 import { EmptyState, PageHeading, Table } from '../_components/ui'
+import { requireAdminOrNull } from '@/lib/admin-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,6 +10,11 @@ export default async function AdminReservationsPage({
 }: {
   searchParams: Promise<{ status?: string; all?: string }>
 }) {
+  // Resource-level gate. The layout's refusal only hides the UI; without this
+  // the page still runs and its rows travel in the RSC payload. See
+  // requireAdminOrNull.
+  if (!(await requireAdminOrNull())) return null
+
   const params = await searchParams
   const showPast = params.all === '1'
 

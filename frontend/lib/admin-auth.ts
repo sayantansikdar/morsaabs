@@ -78,3 +78,21 @@ export async function getAdminActor(): Promise<AdminActor | null> {
 export async function isAdmin(): Promise<boolean> {
   return (await getAdminActor()) !== null
 }
+
+/**
+ * Gate for an admin *page*, to be called before it touches any data.
+ *
+ * A layout gate is not sufficient and this is not a subtlety — it is a real
+ * leak. In the App Router `children` is rendered independently of whether the
+ * layout chooses to place it, so a layout that returns "access denied" instead
+ * of `{children}` still lets the page run: its queries execute and its rendered
+ * output travels in the RSC payload. Signed-out requests to /admin/menu were
+ * observed carrying the full dish list.
+ *
+ * So every page resolves the actor itself, first, and returns nothing when
+ * there isn't one. The visible refusal is the layout's job; this one's job is
+ * to make sure no query runs and no row is serialised.
+ */
+export async function requireAdminOrNull(): Promise<AdminActor | null> {
+  return getAdminActor()
+}

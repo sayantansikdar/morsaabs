@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getDashboardStats } from '@/lib/db/queries'
 import { formatPrice } from '@/lib/site'
+import { requireAdminOrNull } from '@/lib/admin-auth'
 
 /**
  * Overview. Deliberately answers "what needs me right now?" rather than showing
@@ -12,6 +13,11 @@ import { formatPrice } from '@/lib/site'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminOverview() {
+  // Resource-level gate. The layout's refusal only hides the UI; without this
+  // the page still runs and its rows travel in the RSC payload. See
+  // requireAdminOrNull.
+  if (!(await requireAdminOrNull())) return null
+
   const stats = await getDashboardStats()
 
   const queues = [
