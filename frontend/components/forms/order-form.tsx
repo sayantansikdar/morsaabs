@@ -16,6 +16,15 @@ import { track } from '@/lib/analytics'
 import { site, formatPrice } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
+/**
+ * Whether this deployment can take money online.
+ *
+ * The publishable key is public by design, so its presence is a safe signal in
+ * the browser. Server-side the real gate is STRIPE_SECRET_KEY, checked again
+ * when the order is submitted — this only decides whether to show the option.
+ */
+const ONLINE_PAYMENT_ENABLED = Boolean(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+
 const LABELS: Record<string, string> = {
   name: 'Your name',
   phone: 'Phone number',
@@ -132,6 +141,14 @@ export function OrderForm() {
     })
 
     clear()
+
+    // Paying online: hand the guest to Stripe. Not router.push — the checkout
+    // page is on Stripe's domain, so this has to leave the app entirely.
+    if (result.checkoutUrl) {
+      window.location.href = result.checkoutUrl
+      return
+    }
+
     router.push(
       `/thank-you?type=order&ref=${result.reference}&name=${encodeURIComponent(String(pending.name))}&mode=${mode}&total=${total}`
     )
@@ -435,6 +452,11 @@ export function OrderForm() {
             <Field id="payment" label={LABELS.payment} required error={errors.payment}>
               {(props) => (
                 <Select {...props} name="payment" defaultValue="upi" invalid={!!errors.payment}>
+                  {/* Only offered when Stripe is configured for this deployment,
+                      so the option can never lead to a dead end. */}
+                  {ONLINE_PAYMENT_ENABLED && (
+                    <option value="stripe">Pay online now — card, UPI or wallet</option>
+                  )}
                   <option value="upi">UPI — GPay, PhonePe or Paytm</option>
                   <option value="card">Card at the door</option>
                   <option value="cash">Cash</option>

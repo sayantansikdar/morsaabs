@@ -89,7 +89,8 @@ export const orderSchema = z.object({
   landmark: z.string().trim().max(120).optional(),
   time: z.string().optional(),
   notes: z.string().trim().max(400, 'Please keep instructions under 400 characters.').optional(),
-  payment: z.enum(['upi', 'card', 'cash'], {
+  // 'stripe' is paying online now; the rest are settled on delivery or pickup.
+  payment: z.enum(['upi', 'card', 'cash', 'stripe'], {
     errorMap: () => ({ message: 'Choose how you would like to pay.' }),
   }),
 }).refine(
