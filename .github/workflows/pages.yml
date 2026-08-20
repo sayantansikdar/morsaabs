@@ -8,12 +8,24 @@ name: Deploy to GitHub Pages
 # STATIC_EXPORT=1 (output: 'export'). The API route handlers are not exported
 # and cannot run here — see the notice rendered on the forms.
 
+# ---------------------------------------------------------------------------
+# PAUSED — superseded by Vercel.
+#
+# The app now needs a server runtime: Clerk authentication, the /admin
+# dashboard, Postgres and (next) Stripe webhooks. Importing ClerkProvider makes
+# `output: export` fail outright, because Clerk registers server actions and a
+# static export forbids them — confirmed by bisection: without the import the
+# export builds 26 pages, with it the build fails. This is not a fixable
+# configuration problem, so the automatic trigger is removed rather than left
+# to fail on every push.
+#
+# The already-published site keeps being served by GitHub Pages, so existing
+# links do not break. Running this workflow manually will now fail.
+#
+# To restore Pages, put back the `push:` trigger below and remove Clerk from
+# the build.
+# ---------------------------------------------------------------------------
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
