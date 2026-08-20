@@ -1,6 +1,7 @@
 import { listCustomers } from '@/lib/db/queries'
 import { formatPrice } from '@/lib/site'
 import { EmptyState, PageHeading, Table } from '../_components/ui'
+import { requireAdminOrNull } from '@/lib/admin-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,11 @@ export default async function AdminCustomersPage({
 }: {
   searchParams: Promise<{ q?: string }>
 }) {
+  // Resource-level gate. The layout's refusal only hides the UI; without this
+  // the page still runs and its rows travel in the RSC payload. See
+  // requireAdminOrNull.
+  if (!(await requireAdminOrNull())) return null
+
   const { q } = await searchParams
   const rows = await listCustomers({ search: q })
 

@@ -1,6 +1,7 @@
 import { listContactMessages } from '@/lib/db/queries'
 import { StatusSelect } from '../_components/status-select'
 import { EmptyState, PageHeading } from '../_components/ui'
+import { requireAdminOrNull } from '@/lib/admin-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,6 +10,11 @@ export const dynamic = 'force-dynamic'
  * the point, and it does not fit in a table cell.
  */
 export default async function AdminMessagesPage() {
+  // Resource-level gate. The layout's refusal only hides the UI; without this
+  // the page still runs and its rows travel in the RSC payload. See
+  // requireAdminOrNull.
+  if (!(await requireAdminOrNull())) return null
+
   const messages = await listContactMessages()
 
   return (

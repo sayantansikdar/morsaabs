@@ -2,6 +2,7 @@ import { listOrders, type OrderStatus } from '@/lib/db/queries'
 import { formatPrice } from '@/lib/site'
 import { StatusSelect } from '../_components/status-select'
 import { EmptyState, PageHeading, Table } from '../_components/ui'
+import { requireAdminOrNull } from '@/lib/admin-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,11 @@ export default async function AdminOrdersPage({
 }: {
   searchParams: Promise<{ status?: string; q?: string }>
 }) {
+  // Resource-level gate. The layout's refusal only hides the UI; without this
+  // the page still runs and its rows travel in the RSC payload. See
+  // requireAdminOrNull.
+  if (!(await requireAdminOrNull())) return null
+
   const params = await searchParams
   const status = STATUSES.includes(params.status as OrderStatus)
     ? (params.status as OrderStatus)
