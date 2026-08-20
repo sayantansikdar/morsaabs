@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server'
+import { ZodError } from 'zod'
+import { isDatabaseConfigured } from '@/lib/db'
+import {
+  persistOrder,
+  persistReservation,
+  persistContactMessage,
+} from '@/lib/db/submissions'
 
 /**
  * Shared handler for the three form endpoints.
  *
- * When BACKEND_API_URL points at the FastAPI service the submission is
- * forwarded there. Without it the submission is accepted and logged, so the
- * site is deployable on its own while the backend is being wired up — the
- * response shape is identical either way.
+ * Where a submission goes, in order:
+ *
+ * 1. Postgres, when DATABASE_URL is set. This is the source of truth the
+ *    dashboard reads, so it must succeed — a booking that is not stored is a
+ *    booking nobody will honour, and the guest is told to call instead.
+ * 2. The FastAPI service, if BACKEND_API_URL is set. Kept so the existing
+ *    backend keeps receiving traffic during the migration; a failure there is
+ *    logged but does not fail the request once the row is safely in Postgres.
+ * 3. Neither configured — accepted and logged, so the site still runs standalone.
  */
 export async function forward(
   request: Request,
@@ -23,9 +35,46 @@ export async function forward(
   const reference = makeReference(prefix)
   const backend = process.env.BACKEND_API_URL?.replace(/\/$/, '')
 
+  let stored = false
+  if (isDatabaseConfigured()) {
+    try {
+      if (path === 'orders') await persistOrder(body, reference)
+      else if (path === 'reservations') await persistReservation(body, reference)
+      else await persistContactMessage(body)
+      stored = true
+    } catch (error) {
+      // A validation failure is the sender's fault and is safe to report as 400;
+      // anything else is ours, and the guest gets a number to call.
+      if (error instanceof ZodError) {
+        console.warn(`[${path}] rejected invalid submission`, error.issues)
+        return NextResponse.json(
+          { error: 'Some of those details were not valid. Please check the form and try again.' },
+          { status: 400 }
+        )
+      }
+      console.error(`[${path}] could not be stored`, error)
+      return NextResponse.json(
+        { error: 'We could not save that just now. Please call us on +91 92119 97724.' },
+        { status: 503 }
+      )
+    }
+  }
+
   if (!backend) {
-    console.info(`[${path}] accepted without backend`, { reference })
-    return NextResponse.json({ reference, forwarded: false }, { status: 201 })
+    if (!stored) console.info(`[${path}] accepted without storage`, { reference })
+    return NextResponse.json({ reference, forwarded: false, stored }, { status: 201 })
+  }
+
+  // Already safely stored: the upstream is now a nice-to-have, not a gate.
+  if (stored) {
+    void fetch(`${backend}/api/${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...body, reference }),
+      signal: AbortSignal.timeout(9000),
+    }).catch((error) => console.error(`[${path}] mirror to backend failed`, error))
+
+    return NextResponse.json({ reference, forwarded: true, stored }, { status: 201 })
   }
 
   try {

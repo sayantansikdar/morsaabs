@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, Manrope, Great_Vibes } from 'next/font/google'
 import './globals.css'
@@ -5,6 +6,7 @@ import './globals.css'
 import { Providers } from '@/components/providers'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { SiteChrome } from '@/components/layout/site-chrome'
 import { ScrollProgress } from '@/components/shared/scroll-progress'
 import { CookieBanner } from '@/components/shared/cookie-banner'
 import { Analytics } from '@/components/shared/analytics'
@@ -99,6 +101,19 @@ export const viewport: Viewport = {
   colorScheme: 'light dark',
 }
 
+/**
+ * ClerkProvider needs a publishable key and throws without one.
+ *
+ * The public site is still built as a static export in CI, where no Clerk keys
+ * exist and nothing on the exported pages uses authentication — so the provider
+ * is only mounted when a key is present. On Vercel it is always present and the
+ * dashboard gets its session; on GitHub Pages the tree renders unwrapped.
+ */
+function WithClerk({ children }: { children: React.ReactNode }) {
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return <>{children}</>
+  return <ClerkProvider>{children}</ClerkProvider>
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -123,39 +138,49 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
       </head>
       <body className="min-h-dvh bg-background">
-        <JsonLd data={restaurantSchema()} />
-        <JsonLd data={websiteSchema()} />
+        <WithClerk>
+          <JsonLd data={restaurantSchema()} />
+          <JsonLd data={websiteSchema()} />
 
-        <Providers>
-          <SkipLink />
-          <ScrollProgress />
-          <ArchClipDefs />
+          <Providers>
+            <ArchClipDefs />
 
-          {/* Focus target for "back to top". */}
-          <span id="top" tabIndex={-1} className="sr-only">
-            Top of page
-          </span>
+            {/* The dashboard opts out of all of this — see SiteChrome. */}
+            <SiteChrome
+              header={
+                <>
+                  <SkipLink />
+                  <ScrollProgress />
 
-          <Header />
+                  {/* Focus target for "back to top". */}
+                  <span id="top" tabIndex={-1} className="sr-only">
+                    Top of page
+                  </span>
 
-          <main id="main" tabIndex={-1} className="pt-[var(--header-h)] focus:outline-none">
-            {children}
-          </main>
+                  <Header />
+                </>
+              }
+              footer={<Footer />}
+              floating={
+                <>
+                  {/* Bottom-bar clearance so the last of the footer is never trapped
+                      under the sticky mobile CTA. */}
+                  <div aria-hidden="true" className="h-20 md:hidden" data-print="hide" />
 
-          <Footer />
+                  <StickyMobileCTA />
+                  <BackToTop />
+                  <FloatingContact />
+                  <CookieBanner />
+                </>
+              }
+            >
+              {children}
+            </SiteChrome>
+          </Providers>
 
-          {/* Bottom-bar clearance so the last of the footer is never trapped
-              under the sticky mobile CTA. */}
-          <div aria-hidden="true" className="h-20 md:hidden" data-print="hide" />
-
-          <StickyMobileCTA />
-          <BackToTop />
-          <FloatingContact />
-          <CookieBanner />
-        </Providers>
-
-        <Analytics measurementId={site.gaMeasurementId} />
-        <DatadogRum />
+          <Analytics measurementId={site.gaMeasurementId} />
+          <DatadogRum />
+        </WithClerk>
       </body>
     </html>
   )
