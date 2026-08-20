@@ -15,7 +15,7 @@
  */
 
 import 'server-only'
-import { inArray } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { getDb } from './index'
 import { menuItems, orders, orderItems, reservations, contactMessages } from './schema'
 import { upsertCustomer } from './mutations'
@@ -104,6 +104,19 @@ export async function persistOrder(
   await db.insert(orderItems).values(lines.map((line) => ({ ...line, orderId: order.id })))
 
   return { id: order.id, total }
+}
+
+/**
+ * Removes an order and its lines.
+ *
+ * Only for an order that failed before the guest could pay — nothing is owed
+ * and no one has seen it. Never call this to cancel a real order: that is what
+ * the 'cancelled' status is for, and the row is the record of what happened.
+ */
+export async function deleteOrder(orderId: number) {
+  const db = getDb()
+  await db.delete(orderItems).where(eq(orderItems.orderId, orderId))
+  await db.delete(orders).where(eq(orders.id, orderId))
 }
 
 /* ----------------------------------------------------------- reservations -- */

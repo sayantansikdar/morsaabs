@@ -5,7 +5,10 @@ import {
   persistOrder,
   persistReservation,
   persistContactMessage,
+  deleteOrder,
 } from '@/lib/db/submissions'
+import { isStripeConfigured } from '@/lib/stripe'
+import { createCheckoutSession } from '@/lib/payments'
 
 /**
  * Shared handler for the three form endpoints.
@@ -36,10 +39,43 @@ export async function forward(
   const backend = process.env.BACKEND_API_URL?.replace(/\/$/, '')
 
   let stored = false
+  let checkoutUrl: string | null = null
+
   if (isDatabaseConfigured()) {
     try {
-      if (path === 'orders') await persistOrder(body, reference)
-      else if (path === 'reservations') await persistReservation(body, reference)
+      if (path === 'orders') {
+        const payingOnline = body.payment === 'stripe'
+
+        // Checked *before* the order is written. Refusing after the insert
+        // leaves a row nobody will ever pay for, and the guest — told to pick
+        // another payment method — submits a second order for the same meal.
+        if (payingOnline && !isStripeConfigured()) {
+          return NextResponse.json(
+            {
+              error:
+                'Online payment is unavailable right now. Please choose UPI, card on delivery or cash.',
+            },
+            { status: 503 }
+          )
+        }
+
+        const { id } = await persistOrder(body, reference)
+
+        // The row exists and has been priced from the menu, so the amount
+        // Stripe charges is settled before the guest reaches the payment page.
+        if (payingOnline) {
+          try {
+            checkoutUrl = await createCheckoutSession(id)
+          } catch (error) {
+            // No payment page was ever shown, so nothing is owed and the guest
+            // will retry. Drop the row rather than leave a phantom order in the
+            // kitchen's pending queue.
+            console.error(`[orders] checkout failed for ${reference}; removing the order`, error)
+            await deleteOrder(id)
+            throw error
+          }
+        }
+      } else if (path === 'reservations') await persistReservation(body, reference)
       else await persistContactMessage(body)
       stored = true
     } catch (error) {
@@ -62,7 +98,7 @@ export async function forward(
 
   if (!backend) {
     if (!stored) console.info(`[${path}] accepted without storage`, { reference })
-    return NextResponse.json({ reference, forwarded: false, stored }, { status: 201 })
+    return NextResponse.json({ reference, forwarded: false, stored, checkoutUrl }, { status: 201 })
   }
 
   // Already safely stored: the upstream is now a nice-to-have, not a gate.
@@ -74,7 +110,7 @@ export async function forward(
       signal: AbortSignal.timeout(9000),
     }).catch((error) => console.error(`[${path}] mirror to backend failed`, error))
 
-    return NextResponse.json({ reference, forwarded: true, stored }, { status: 201 })
+    return NextResponse.json({ reference, forwarded: true, stored, checkoutUrl }, { status: 201 })
   }
 
   try {

@@ -24,7 +24,8 @@ const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? '').replace(/\/$/, '')
 export const SUBMISSIONS_UNAVAILABLE = IS_STATIC_BUILD && API_BASE === ''
 
 export type SubmitResult =
-  | { ok: true; reference: string }
+  /** `checkoutUrl` is set only when paying online: the caller must redirect to it. */
+  | { ok: true; reference: string; checkoutUrl?: string | null }
   | { ok: false; error: string; unavailable?: boolean }
 
 const PHONE_FALLBACK =
@@ -54,6 +55,7 @@ export async function submitForm(
     const data = (await response.json().catch(() => ({}))) as {
       reference?: string
       error?: string
+      checkoutUrl?: string | null
     }
 
     if (!response.ok) {
@@ -65,7 +67,7 @@ export async function submitForm(
       }
     }
 
-    return { ok: true, reference: data.reference ?? 'PENDING' }
+    return { ok: true, reference: data.reference ?? 'PENDING', checkoutUrl: data.checkoutUrl ?? null }
   } catch {
     return {
       ok: false,
