@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server'
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
 /**
@@ -10,15 +11,25 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
  * server action, because middleware cannot express "is this user on the list"
  * without a database round trip on every request.
  *
- * Not applied under `output: export` — a static host has no middleware — which
- * is another reason the real checks are in the app, not here.
+ * When Clerk is not configured the middleware is a passthrough instead of
+ * running Clerk at all: `clerkMiddleware()` throws "Missing publishableKey" on
+ * every request without keys, which takes down the entire public site — CI
+ * caught exactly that. Passing through is safe because it grants nothing:
+ * getAdminActor() independently refuses when Clerk is unconfigured, so /admin
+ * stays closed either way.
  */
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)'])
 
-export default clerkMiddleware(async (auth, request) => {
-  if (isAdminRoute(request)) await auth.protect()
-})
+const clerkConfigured = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY
+)
+
+export default clerkConfigured
+  ? clerkMiddleware(async (auth, request) => {
+      if (isAdminRoute(request)) await auth.protect()
+    })
+  : () => NextResponse.next()
 
 export const config = {
   matcher: [
