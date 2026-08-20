@@ -90,3 +90,8 @@ android-sdk/
 
 # SAM build artifacts
 .aws-sam/
+
+# Vendored agent-skill docs, fetched by the Clerk and Neon CLIs. Regenerable
+# from skills-lock.json, which is committed — same split as node_modules and
+# package-lock.json. Editor tooling only; nothing here is used at build time.
+.agents/
