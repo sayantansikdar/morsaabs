@@ -1,35 +1,32 @@
 import { NextResponse } from 'next/server'
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { clerkMiddleware } from '@clerk/nextjs/server'
 
 /**
- * Clerk session middleware.
+ * Clerk session middleware — session resolution only.
  *
- * `/admin` is protected here as a first line: an unauthenticated request is
- * bounced to sign-in before any page code runs. This is *not* the authorisation
- * check — being signed in is not the same as being staff. The allowlist test
- * lives in lib/admin-auth and is re-applied by the admin layout and by every
- * server action, because middleware cannot express "is this user on the list"
- * without a database round trip on every request.
+ * It deliberately does *not* guard /admin. Clerk's own guidance is now to keep
+ * authorisation out of middleware, because path matching can diverge from how
+ * Next actually routes a request and leave a protected resource reachable
+ * (`createRouteMatcher` is deprecated for exactly this reason). In practice it
+ * also returned a bare 404 for signed-out visitors instead of sending them to
+ * sign-in, which is a dead end rather than a door.
  *
- * When Clerk is not configured the middleware is a passthrough instead of
- * running Clerk at all: `clerkMiddleware()` throws "Missing publishableKey" on
- * every request without keys, which takes down the entire public site — CI
- * caught exactly that. Passing through is safe because it grants nothing:
- * getAdminActor() independently refuses when Clerk is unconfigured, so /admin
- * stays closed either way.
+ * The real gate is resource-based and unchanged: the admin layout resolves the
+ * actor through lib/admin-auth (signed in AND on ADMIN_USER_IDS), and every
+ * server action re-checks it, since no middleware can protect a POST it does
+ * not see.
+ *
+ * When Clerk is unconfigured this is a passthrough rather than running Clerk at
+ * all: clerkMiddleware() throws "Missing publishableKey" on every request
+ * without keys, which 500s the whole public site. Passing through grants
+ * nothing — getAdminActor() refuses independently in that state.
  */
-
-const isAdminRoute = createRouteMatcher(['/admin(.*)'])
 
 const clerkConfigured = Boolean(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY
 )
 
-export default clerkConfigured
-  ? clerkMiddleware(async (auth, request) => {
-      if (isAdminRoute(request)) await auth.protect()
-    })
-  : () => NextResponse.next()
+export default clerkConfigured ? clerkMiddleware() : () => NextResponse.next()
 
 export const config = {
   matcher: [
