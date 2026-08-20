@@ -4,8 +4,23 @@
  * the JSON-LD schema and the Google Business Profile — so nothing hardcodes them.
  */
 
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://www.morsaabs.com'
+/**
+ * Normalises NEXT_PUBLIC_SITE_URL into something `new URL()` accepts.
+ *
+ * A scheme is added when one is missing. Vercel displays a deployment's domain
+ * without it — "morsaabs.vercel.app" — so pasting that verbatim into the
+ * environment variable is the natural mistake, and it used to break the build
+ * a long way from the cause: metadataBase does `new URL(SITE_ORIGIN)`, which
+ * threw ERR_INVALID_URL and was reported as "Failed to collect page data for
+ * /_not-found", naming neither the variable nor its value.
+ */
+function normaliseSiteUrl(raw: string | undefined): string {
+  const value = raw?.trim().replace(/\/+$/, '')
+  if (!value) return 'https://www.morsaabs.com'
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`
+}
+
+export const SITE_URL = normaliseSiteUrl(process.env.NEXT_PUBLIC_SITE_URL)
 
 /**
  * Subpath the site is served from — '' on a domain root, '/morsaabs' on
