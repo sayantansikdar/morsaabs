@@ -17,7 +17,32 @@
 function normaliseSiteUrl(raw: string | undefined): string {
   const value = raw?.trim().replace(/\/+$/, '')
   if (!value) return 'https://www.morsaabs.com'
-  return /^https?:\/\//i.test(value) ? value : `https://${value}`
+  const url = /^https?:\/\//i.test(value) ? value : `https://${value}`
+
+  /*
+   * Adding the scheme makes almost any string parse, which turns a
+   * mispasted value into a silently wrong canonical rather than a failed
+   * build — NEXT_PUBLIC_SITE_URL was once set to a Clerk user id, and every
+   * canonical, og:url and sitemap entry pointed at https://user_3ibwi… .
+   * A hostname with no dot is not reachable on the public internet, so say so
+   * loudly. It is a warning rather than a throw because localhost and
+   * single-label internal hosts are legitimate in development.
+   */
+  try {
+    const { hostname } = new URL(url)
+    const singleLabel = !hostname.includes('.') && hostname !== 'localhost'
+    if (singleLabel) {
+      console.warn(
+        `[site] NEXT_PUBLIC_SITE_URL is "${value}", which is not a domain. ` +
+          `Canonical tags, og:url and the sitemap will all point at ${url}. ` +
+          `Set it to the site's full URL, e.g. https://www.morsaabs.com`
+      )
+    }
+  } catch {
+    // Unparseable even with a scheme; the caller's own error will be clearer.
+  }
+
+  return url
 }
 
 export const SITE_URL = normaliseSiteUrl(process.env.NEXT_PUBLIC_SITE_URL)
