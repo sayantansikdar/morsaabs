@@ -3,6 +3,7 @@
 import * as React from 'react'
 import Image from 'next/image'
 import { updateMenuItemAction, deleteMenuItemAction } from '../actions'
+import { PhotoField } from './photo-field'
 import type { MenuItemRow } from '@/lib/db/schema'
 
 /**
@@ -116,6 +117,10 @@ function DishRow({ item }: { item: MenuItemRow }) {
             width={48}
             height={48}
             className="size-12 shrink-0 rounded-md object-cover"
+            // A photo URL can be pasted from anywhere, and next/image rejects
+            // hosts outside remotePatterns. At 48px there is nothing to gain
+            // from the optimiser and a broken thumbnail to lose.
+            unoptimized
           />
         ) : (
           <div
@@ -178,13 +183,8 @@ function DishRow({ item }: { item: MenuItemRow }) {
             />
           </Field>
 
-          <Field label="Photo URL" hint="Paste an image link, or leave empty for no photo.">
-            <input
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://…"
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-            />
+          <Field label="Photo">
+            <PhotoField value={imageUrl} onChange={setImageUrl} dishName={item.name} />
           </Field>
 
           <Field label="Description" className="sm:col-span-2">
