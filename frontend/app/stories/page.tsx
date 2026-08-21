@@ -1,17 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Quote, ArrowRight, Target, Wrench, TrendingUp } from 'lucide-react'
+import { ArrowRight, Target, TrendingUp, Wrench } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
 import { Badge, GiltRule } from '@/components/ui/royal'
 import { Button } from '@/components/ui/button'
 import { stories } from '@/content/stories'
 import { pageMeta } from '@/lib/seo'
-import { formatDate, site } from '@/lib/site'
+import { site } from '@/lib/site'
 
 export const metadata: Metadata = pageMeta({
-  title: 'Event Stories — Catering Case Studies from 30 to 800 Guests',
+  title: 'Event Catering — Weddings, Offsites and Society Events up to 800 Guests',
   description:
-    'Three catering case studies: an 800-guest wedding served in 85 minutes, a corporate offsite with two full menus for Jain guests, and a 450-person Diwali mela at 6% wastage.',
+    'How we plan three different kinds of event: a large wedding without the buffet queue, an offsite where the Jain menu is not an afterthought, and a society mela served in shifts.',
   path: '/stories',
   keywords: [
     'wedding catering case study Delhi',
@@ -25,9 +25,9 @@ export default function StoriesPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Event Stories"
-        title="What happens when we cater"
-        lede="Three events, three genuinely different problems, and what we actually did about each one — including the numbers."
+        eyebrow="Event Catering"
+        title="How we plan an event"
+        lede="Three kinds of event, three genuinely different problems, and how each one is planned and staffed."
         trail={[{ name: 'Event Stories', href: '/stories' }]}
       />
 
@@ -42,15 +42,12 @@ export default function StoriesPage() {
               <header className="border-b border-border p-7 sm:p-10">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge tone="maroon">{story.eventType}</Badge>
-                  <Badge tone="muted">
-                    <time dateTime={story.date}>{formatDate(story.date)}</time>
-                  </Badge>
+                  <Badge tone="muted">{story.scale}</Badge>
                 </div>
 
                 <h2 className="mt-5 font-display text-display-sm font-bold leading-tight text-foreground">
                   {story.title}
                 </h2>
-                <p className="mt-2 text-sm font-medium text-muted-foreground">{story.client}</p>
                 <p className="measure mt-4 leading-relaxed text-muted-foreground">{story.summary}</p>
 
                 {/* Headline metrics */}
@@ -98,10 +95,10 @@ export default function StoriesPage() {
                   </ul>
                 </section>
 
-                <section aria-label="The outcome">
+                <section aria-label="The thinking">
                   <h3 className="flex items-center gap-2 font-display text-lg font-bold text-foreground">
                     <TrendingUp className="size-4 text-royal-600 dark:text-royal-300" aria-hidden="true" />
-                    The outcome
+                    The thinking
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     {story.outcome}
@@ -109,15 +106,6 @@ export default function StoriesPage() {
                 </section>
               </div>
 
-              <figure className="border-t border-border bg-muted/40 p-7 sm:p-10">
-                <Quote className="size-6 text-gold-400" aria-hidden="true" />
-                <blockquote className="measure mt-3 font-display text-lg italic leading-relaxed text-foreground">
-                  “{story.quote.text}”
-                </blockquote>
-                <figcaption className="mt-3 text-sm text-muted-foreground">
-                  — {story.quote.attribution}
-                </figcaption>
-              </figure>
             </article>
           ))}
 
