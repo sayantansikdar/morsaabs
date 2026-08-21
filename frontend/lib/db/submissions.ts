@@ -37,7 +37,14 @@ const orderPayloadSchema = orderSchema.and(
   })
 )
 
-export type PersistResult = { id: number; total: number }
+export type PersistResult = {
+  id: number
+  total: number
+  mode: 'delivery' | 'takeaway'
+  paymentMethod: 'upi' | 'card' | 'cash' | 'stripe'
+  /** Priced lines, so a confirmation email need not re-read them. */
+  items: { name: string; quantity: number; lineTotal: number }[]
+}
 
 /* ----------------------------------------------------------------- orders -- */
 
@@ -103,7 +110,17 @@ export async function persistOrder(
 
   await db.insert(orderItems).values(lines.map((line) => ({ ...line, orderId: order.id })))
 
-  return { id: order.id, total }
+  return {
+    id: order.id,
+    total,
+    mode: data.mode,
+    paymentMethod: data.payment,
+    items: lines.map((line) => ({
+      name: line.name,
+      quantity: line.quantity,
+      lineTotal: line.lineTotal,
+    })),
+  }
 }
 
 /**
