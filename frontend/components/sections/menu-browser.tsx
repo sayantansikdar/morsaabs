@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { Search, X, Printer, Flame, Crown, Leaf } from 'lucide-react'
 import { DishCard } from '@/components/shared/dish-card'
 import { Button } from '@/components/ui/button'
-import { menu } from '@/content/menu'
+import { menu as bundledMenu, type MenuCategory } from '@/content/menu'
 import { track } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
@@ -24,7 +24,7 @@ const FILTERS: { id: Filter; label: string; icon?: typeof Crown }[] = [
  * Filtering happens on already-rendered data, so results are instant and the
  * page still ships every dish in the server HTML for crawlers.
  */
-export function MenuBrowser() {
+export function MenuBrowser({ menu = bundledMenu }: { menu?: MenuCategory[] } = {}) {
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
 
@@ -48,7 +48,10 @@ export function MenuBrowser() {
           }),
         }))
         .filter((category) => category.items.length > 0),
-    [q, filter]
+    // `menu` belongs here now that it arrives as a prop — it used to be a
+    // module import that could never change, and omitting it would show a
+    // stale carte after an edit.
+    [menu, q, filter]
   )
 
   const total = filtered.reduce((n, c) => n + c.items.length, 0)

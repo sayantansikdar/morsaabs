@@ -8,12 +8,18 @@ import { Button } from '@/components/ui/button'
 import { RoyalLoader } from '@/components/ui/royal'
 import { menuSchema } from '@/lib/schema'
 import { pageMeta } from '@/lib/seo'
-import { allMenuItems } from '@/content/menu'
+import { getPublicMenu, getPublicMenuItems } from '@/lib/menu-source'
 import { site } from '@/lib/site'
 
-export const metadata: Metadata = pageMeta({
-  title: `Menu — ${allMenuItems.length} Pure Veg Dishes | Prices in Uttam Nagar`,
-  description: `Full menu with prices: paneer butter masala ₹349, Royal Special thali ₹349, masala dosa ₹139, chilli paneer ₹249 and ${allMenuItems.length - 4} more. North Indian, Indo-Chinese, South Indian, pizza & pasta — all pure vegetarian.`,
+/**
+ * The menu is rendered from the database, so the dish count in the title moves
+ * with it — hence generateMetadata rather than a module-scope constant.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const count = (await getPublicMenuItems()).length
+  return pageMeta({
+  title: `Menu — ${count} Pure Veg Dishes | Prices in Uttam Nagar`,
+  description: `Full menu with prices: paneer butter masala ₹349, Royal Special thali ₹349, masala dosa ₹139, chilli paneer ₹249 and ${count - 4} more. North Indian, Indo-Chinese, South Indian, pizza & pasta — all pure vegetarian.`,
   path: '/menu',
   keywords: [
     'Morsaabs menu with prices',
@@ -22,9 +28,19 @@ export const metadata: Metadata = pageMeta({
     'thali price Uttam Nagar',
     'dosa near Dwarka Mor',
   ],
-})
+  })
+}
 
-export default function MenuPage() {
+/*
+ * Statically rendered and refreshed on demand: the dashboard calls
+ * revalidatePath('/menu') whenever a dish changes, so an edit is live at once
+ * without every visitor paying for a database round trip. The interval is a
+ * backstop in case a revalidation is ever missed.
+ */
+export const revalidate = 300
+
+export default async function MenuPage() {
+  const [menu, allItems] = await Promise.all([getPublicMenu(), getPublicMenuItems()])
   return (
     <>
       <JsonLd data={menuSchema()} />
@@ -32,7 +48,7 @@ export default function MenuPage() {
       <PageHeader
         eyebrow="The Carte"
         title="Our Menu"
-        lede={`${allMenuItems.length} dishes across nine sections — every one of them pure vegetarian, cooked to order. Prices include taxes.`}
+        lede={`${allItems.length} dishes across nine sections — every one of them pure vegetarian, cooked to order. Prices include taxes.`}
         trail={[{ name: 'Menu', href: '/menu' }]}
       >
         <div className="flex flex-wrap gap-3">
@@ -52,7 +68,7 @@ export default function MenuPage() {
 
       {/* useSearchParams inside MenuBrowser needs a Suspense boundary. */}
       <Suspense fallback={<RoyalLoader label="Laying out the carte…" />}>
-        <MenuBrowser />
+        <MenuBrowser menu={menu} />
       </Suspense>
 
       {/* Print-only header — the screen version lives in PageHeader. */}

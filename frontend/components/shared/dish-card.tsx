@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import { Flame, Crown, Plus, Check, Sparkles, Leaf } from 'lucide-react'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/royal'
@@ -88,6 +89,23 @@ export function DishCard({
         className
       )}
     >
+      {/* Photography is optional and most dishes have none, so the card must
+          look deliberate without it — hence no placeholder, just no image. */}
+      {item.imageUrl && (
+        <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-xl bg-muted">
+          <Image
+            src={item.imageUrl}
+            // Empty alt when there is no description: the dish name is already
+            // the heading directly below, and repeating it makes a screen
+            // reader say everything twice.
+            alt={item.imageAlt ?? ''}
+            fill
+            sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 90vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
+      )}
+
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h3 className="font-display text-lg font-bold leading-snug text-foreground">
