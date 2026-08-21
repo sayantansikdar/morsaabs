@@ -3,17 +3,17 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Flame, Leaf, ShieldCheck, Users } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
-import { SectionHeading, ArchFrame, GiltRule, Badge } from '@/components/ui/royal'
+import { SectionHeading, ArchFrame, GiltRule } from '@/components/ui/royal'
 import { Button } from '@/components/ui/button'
 import { GuaranteeSection } from '@/components/sections/teasers'
-import { media, team } from '@/content/media'
+import { media } from '@/content/media'
 import { pageMeta } from '@/lib/seo'
 import { site } from '@/lib/site'
 
 export const metadata: Metadata = pageMeta({
   title: 'Our Story — The Kitchen Behind Morsaab’s, Uttam Nagar',
   description:
-    'How a pure vegetarian kitchen on Rama Park Road came to cook North Indian, Indo-Chinese and South Indian food to the same standard — and the four people who run it.',
+    'How a pure vegetarian kitchen on Rama Park Road came to cook North Indian, Indo-Chinese and South Indian food to the same standard.',
   path: '/about',
   keywords: [
     'about Morsaabs restaurant',
@@ -184,49 +184,6 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Feature 20 — the team */}
-      <section id="team" aria-labelledby="team-title" className="scroll-mt-28 py-16 sm:py-24">
-        <div className="container-royal">
-          <SectionHeading
-            id="team-title"
-            eyebrow="Who cooks your food"
-            title="The people at the pass"
-            lede="Four of the people you are trusting with dinner. Between them they have been in professional kitchens for over fifty years."
-          />
-
-          <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {team.map((person) => (
-              <li key={person.name} className="text-center">
-                <div className="relative mx-auto aspect-square w-full max-w-[15rem] overflow-hidden rounded-2xl border border-gold-400/30">
-                  <Image
-                    src={person.photo.src}
-                    alt={person.photo.alt}
-                    fill
-                    sizes="(min-width: 1024px) 15rem, 45vw"
-                    className="object-cover"
-                  />
-                </div>
-                <h3 className="mt-4 font-display text-lg font-bold text-foreground">
-                  {person.name}
-                </h3>
-                <p className="mt-1">
-                  <Badge tone="gold">{person.role}</Badge>
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{person.bio}</p>
-              </li>
-            ))}
-          </ul>
-
-          <p className="mx-auto mt-10 max-w-2xl rounded-xl border border-dashed border-gold-400/40 bg-muted/50 p-4 text-center text-sm text-muted-foreground">
-            Chef Ramesh and Meera write most of{' '}
-            <Link href="/blog" className="font-medium underline underline-offset-4">
-              the journal
-            </Link>{' '}
-            — techniques, ingredients and the occasional argument about tomatoes.
-          </p>
         </div>
       </section>
 
