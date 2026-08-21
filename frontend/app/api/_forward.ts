@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { ZodError } from 'zod'
 import { isDatabaseConfigured } from '@/lib/db'
 import {
@@ -9,6 +9,13 @@ import {
 } from '@/lib/db/submissions'
 import { isStripeConfigured } from '@/lib/stripe'
 import { createCheckoutSession } from '@/lib/payments'
+import {
+  sendOrderNotification,
+  sendReservationConfirmation,
+  sendReservationNotification,
+  sendContactNotification,
+  isEmailConfigured,
+} from '@/lib/email'
 
 /**
  * Shared handler for the three form endpoints.
@@ -59,7 +66,25 @@ export async function forward(
           )
         }
 
-        const { id } = await persistOrder(body, reference)
+        const { id, total, items, mode, paymentMethod } = await persistOrder(body, reference)
+
+        // after() runs once the response has gone, so a slow mail provider
+        // never delays the guest, and a failed send never fails the order.
+        if (isEmailConfigured()) {
+          after(async () => {
+            const result = await sendOrderNotification({
+              reference,
+              name: String(body.name ?? ''),
+              phone: String(body.phone ?? ''),
+              mode,
+              address: body.address ? String(body.address) : null,
+              total,
+              paymentMethod,
+              items,
+            })
+            if (!result.sent) console.error(`[orders] notification not sent for ${reference}: ${result.error}`)
+          })
+        }
 
         // The row exists and has been priced from the menu, so the amount
         // Stripe charges is settled before the guest reaches the payment page.
@@ -75,8 +100,47 @@ export async function forward(
             throw error
           }
         }
-      } else if (path === 'reservations') await persistReservation(body, reference)
-      else await persistContactMessage(body)
+      } else if (path === 'reservations') {
+        await persistReservation(body, reference)
+
+        if (isEmailConfigured()) {
+          const booking = {
+            reference,
+            name: String(body.name ?? ''),
+            phone: String(body.phone ?? ''),
+            email: body.email ? String(body.email) : null,
+            date: String(body.date ?? ''),
+            time: String(body.time ?? ''),
+            guests: Number(body.guests ?? 0),
+            occasion: body.occasion ? String(body.occasion) : null,
+          }
+          after(async () => {
+            // The guest's confirmation matters more than ours, but neither
+            // should stop the other from being attempted.
+            await Promise.allSettled([
+              sendReservationConfirmation(booking),
+              sendReservationNotification(booking),
+            ])
+          })
+        }
+      }
+      else {
+        await persistContactMessage(body)
+
+        if (isEmailConfigured()) {
+          const enquiry = {
+            name: String(body.name ?? ''),
+            email: String(body.email ?? ''),
+            phone: String(body.phone ?? ''),
+            subject: String(body.subject ?? 'general'),
+            message: String(body.message ?? ''),
+          }
+          after(async () => {
+            const result = await sendContactNotification(enquiry)
+            if (!result.sent) console.error(`[contact] notification not sent: ${result.error}`)
+          })
+        }
+      }
       stored = true
     } catch (error) {
       // A validation failure is the sender's fault and is safe to report as 400;
