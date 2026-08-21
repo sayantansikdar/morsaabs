@@ -10,6 +10,7 @@ import { LocationSection } from '@/components/sections/location'
 import { JsonLd } from '@/components/shared/json-ld'
 import { faqSchema } from '@/lib/schema'
 import { pageMeta } from '@/lib/seo'
+import { getPublicMenuItems } from '@/lib/menu-source'
 
 export const metadata: Metadata = pageMeta({
   // Feature 11 — title written for the local search terms people actually use.
@@ -30,13 +31,21 @@ export const metadata: Metadata = pageMeta({
   ],
 })
 
-export default function HomePage() {
+/*
+ * Chef's picks and their prices come from the database, so the homepage cannot
+ * disagree with the menu page after an edit. Revalidated on demand by the
+ * dashboard, like /menu.
+ */
+export const revalidate = 300
+
+export default async function HomePage() {
+  const dishes = await getPublicMenuItems()
   return (
     <>
       <JsonLd data={faqSchema()} />
 
       <Hero />
-      <SignatureDishes />
+      <SignatureDishes dishes={dishes} />
       <OfferStrip />
       <AboutTeaser />
       <ServicesGrid />
