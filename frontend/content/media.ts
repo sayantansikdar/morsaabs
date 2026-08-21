@@ -112,7 +112,16 @@ export const media = {
   },
 } satisfies Record<string, Media>
 
-/** Feature 51 — before / after pairs for the fit-out and plating upgrades. */
+/**
+ * Feature 51 — before / after pairs for the fit-out and plating upgrades.
+ *
+ * ⚠️ Illustrated with stock photography, like everything else in this file, so
+ * the captions describe what each change was *for* rather than what it
+ * achieved. They used to quote cover counts, dwell time and footfall — figures
+ * nobody measured, attached to rooms nobody photographed. Keep it that way
+ * until there are real before-and-after photographs and real numbers to go
+ * with them.
+ */
 export type BeforeAfter = {
   id: string
   title: string
@@ -128,7 +137,7 @@ export const beforeAfter: BeforeAfter[] = [
     title: 'The mezzanine',
     year: '2025 → 2026',
     caption:
-      'We closed the first floor for six weeks and rebuilt it around six arched alcoves. Cover count dropped from 48 to 36 up here, and the average table now stays 40 minutes longer.',
+      'The first floor was rebuilt around six arched alcoves. Fewer covers up here than before, and the intention was the opposite of turning tables quickly — somewhere a group can sit through a long dinner without being crowded.',
     before: {
       src: u('mezzanine-before'),
       alt: 'The mezzanine before renovation: open rows of plain tables under flat ceiling lights',
@@ -147,7 +156,7 @@ export const beforeAfter: BeforeAfter[] = [
     title: 'The Royal Special thali',
     year: '2024 → 2026',
     caption:
-      'Same price, same portions, rebuilt plate. Moving from a steel compartment tray to a brass thali with separate katoris changed nothing about the cooking and everything about how the food photographs and arrives.',
+      'Same price, same portions, rebuilt plate. Moving from a steel compartment tray to a brass thali with separate katoris changes nothing about the cooking — it is about how the food arrives at the table.',
     before: {
       src: u('thali-plating-before'),
       alt: 'The thali as it was served in 2024: a steel compartment tray with food in fixed sections',
@@ -166,7 +175,7 @@ export const beforeAfter: BeforeAfter[] = [
     title: 'The Rama Park Road frontage',
     year: '2025 → 2026',
     caption:
-      'The old frontage was a flat backlit board. The new one is a carved jharokha arch with warm uplighting, and walk-in footfall on weekday evenings went up noticeably after it went in.',
+      'The old frontage was a flat backlit board. The new one is a carved jharokha arch with warm uplighting, so the entrance reads as a restaurant rather than a shopfront after dark.',
     before: {
       src: u('facade-before'),
       alt: 'The old storefront: a flat backlit signboard above a plain glass frontage',
