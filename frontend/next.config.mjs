@@ -69,6 +69,9 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      // Dish photography uploaded through the dashboard. The subdomain is the
+      // Blob store's id, so it has to be matched by wildcard.
+      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
     ],
   },
 
