@@ -196,6 +196,29 @@
   }
 }
 
+/* ---- Drifting spices (hero) -------------------------------------------- */
+/*
+ * One keyframe, varied per element through custom properties set inline, so
+ * eight spices share a single animation definition. Transform and opacity only.
+ * The reduced-motion block below collapses this like every other animation, and
+ * the element is also hidden outright under motion-reduce.
+ */
+@keyframes spice-drift {
+  from {
+    transform: translate3d(0, -18vh, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--spice-drift-x, 0), 116vh, 0) rotate(var(--spice-spin, 180deg));
+  }
+}
+
+.spice-drift {
+  animation-name: spice-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
 /* ---- Reduced motion --------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Star, MapPin, Clock, ChevronDown, Truck, CalendarCheck, UtensilsCrossed } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DurbarScene } from '@/components/sections/durbar-scene'
+import { SpiceDrift } from '@/components/sections/spice-drift'
 import { site } from '@/lib/site'
 
 /**
@@ -23,6 +24,9 @@ export function Hero() {
     >
       {/* The backdrop is drawn, not photographed — see DurbarScene for why. */}
       <DurbarScene />
+
+      {/* Ambient spices, behind the copy and above the palace. */}
+      <SpiceDrift />
 
       <div className="container-royal relative z-10 py-24 text-center sm:py-32">
         {/* Rating badge */}
