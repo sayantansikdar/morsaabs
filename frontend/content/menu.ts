@@ -19,6 +19,13 @@ export type MenuItem = {
   jain?: boolean
   vegan?: boolean
   contains?: string[]
+  /**
+   * Photography, when there is any. Set from the database rather than here —
+   * staff attach photos through the dashboard, and this file is only the
+   * fallback for a build with no database. See lib/menu-source.ts.
+   */
+  imageUrl?: string | null
+  imageAlt?: string | null
 }
 
 export type MenuCategory = {
