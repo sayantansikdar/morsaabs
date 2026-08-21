@@ -167,7 +167,10 @@ export function articleSchema(post: Post) {
       if ('items' in b) return n + b.items.join(' ').split(/\s+/).length
       return n
     }, 0),
-    author: { '@type': 'Person', name: post.author, jobTitle: post.authorRole },
+    // An Organization, not a Person: these are written at the pass rather than
+    // by a named individual, and claiming a Person in structured data would be
+    // asserting that someone specific exists and wrote it.
+    author: { '@type': 'Organization', name: site.name },
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/blog/${post.slug}` },
     image: [`${SITE_URL}/opengraph-image`],

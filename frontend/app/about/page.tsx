@@ -102,7 +102,7 @@ export default function AboutPage() {
                 </p>
                 <p>
                   What makes it workable is that the sections are genuinely separate
-                  stations with their own chefs — Sunita runs the tandoor and the dosa
+                  stations with their own chefs — one runs the tandoor and the dosa
                   griddle, the wok section is its own person, and nobody is asked to
                   cover two at once during service.
                 </p>

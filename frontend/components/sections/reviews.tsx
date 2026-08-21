@@ -191,7 +191,7 @@ function SentimentLoop() {
           <p className="font-display text-xl font-bold text-foreground">Thank you — noted.</p>
           <p className="mt-2 text-sm text-muted-foreground">
             {sentiment === 'down'
-              ? `This goes straight to Vikram, our manager. If you left a contact detail he will call you back today.`
+              ? `This goes straight to the restaurant manager. If you left a contact detail we will call you back today.`
               : 'It genuinely helps. If you have a minute, a Google review helps other people find us.'}
           </p>
           {sentiment === 'up' && (

@@ -193,7 +193,7 @@ export function GuaranteeSection() {
                 />
               </div>
               <p className="mt-4 text-center text-xs text-sand-300">
-                Chef Ramesh tastes every gravy before service opens.
+                Every gravy is tasted at the pass before service opens.
               </p>
             </div>
           </div>

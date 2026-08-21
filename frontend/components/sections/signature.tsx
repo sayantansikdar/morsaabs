@@ -179,8 +179,8 @@ export function AboutTeaser() {
                 somewhere you would take your parents on an anniversary.
               </p>
               <p>
-                Chef Ramesh Bhatt has run this pass for nine years. He tastes every
-                gravy before service and has sent plenty of them back.
+                The same head chef has run this pass for nine years. Every gravy is
+                tasted before service, and plenty have been sent back.
               </p>
             </div>
 
