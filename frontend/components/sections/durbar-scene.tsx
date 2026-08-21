@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 
 /**
@@ -17,16 +18,42 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion
  */
 export function DurbarScene() {
   const reduced = useReducedMotion()
-  const { scrollYProgress } = useScroll()
+  const ref = useRef<HTMLDivElement>(null)
 
-  // Distant planes move least — the standard parallax depth cue.
-  const sky = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '8%'])
-  const palace = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '18%'])
-  const arcade = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '30%'])
-  const drape = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '-12%'])
+  /*
+   * Progress is measured across *this scene*, not the document.
+   *
+   * A bare useScroll() reports progress over the whole page, and this page is
+   * some 38,000px tall — so the hero occupies about 2% of it and every plane
+   * had travelled roughly a fiftieth of its range by the time it scrolled out
+   * of sight. The parallax was not subtle, it was very nearly absent.
+   *
+   * Scoped to the scene, 0 is the hero at rest and 1 is the hero fully gone,
+   * so the ranges below describe what actually happens on screen.
+   */
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start start', 'end start'],
+  })
+
+  /*
+   * Distant planes move least — the standard parallax depth cue. The spread
+   * between the nearest and furthest plane is what reads as depth, so it is
+   * wider than it was: the reel's courtyard has the colonnade sliding past a
+   * near-static palace, and 8%→30% was too flat to register at hero height.
+   * Every value collapses to 0 under prefers-reduced-motion.
+   */
+  const sky = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '6%'])
+  const palace = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '14%'])
+  const arcade = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '26%'])
+  const drape = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '-14%'])
 
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div
+      ref={ref}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
       {/* ---- Plane 1: sky and courtyard ground ---------------------------- */}
       <motion.div style={{ y: sky }} className="absolute inset-x-0 -top-[8%] h-[124%]">
         <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" className="size-full">
