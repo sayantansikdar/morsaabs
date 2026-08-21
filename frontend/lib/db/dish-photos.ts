@@ -23,46 +23,95 @@
  * will replace this one.
  */
 
-const u = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`
+const BLOB_BASE = 'https://euzy3uln8hrj0lj1.public.blob.vercel-storage.com/menu'
 
-/** Verified, vegetarian, unbranded. */
-const IMG = {
-  paneerCurry: u('photo-1631452180519-c014fe946bc7'),
-  chana: u('photo-1585937421612-70a008356fbe'),
-  darkCurry: u('photo-1565557623262-b51c2513a641'),
-  tikka: u('photo-1567188040759-fb8a883dc6d8'),
-  mushroom: u('photo-1596797038530-2c107229654b'),
-  samosa: u('photo-1601050690597-df0568f70950'),
-  samosaBoard: u('photo-1553787499-6f9133860278'),
-  papadDal: u('photo-1567337710282-00832b415979'),
-  fries: u('photo-1541592106381-b31e9677c0e5'),
-  almonds: u('photo-1596040033229-a9821ebd058d'),
-  dosa: u('photo-1668236543090-82eba5ee5976'),
-  idli: u('photo-1603133872878-684f208fb84b'),
-  bananaLeaf: u('photo-1601050690117-94f5f6fa8bd7'),
-  thali: u('photo-1626777552726-4a6b54c97e46'),
-  noodles: u('photo-1585032226651-759b368d7246'),
-  pizza: u('photo-1513104890138-7c749659a591'),
-  pizza2: u('photo-1630383249896-424e482df921'),
-  pasta: u('photo-1621996346565-e3dbc646d9a9'),
-  creamyPasta: u('photo-1476124369491-e7addf5db371'),
-  cappuccino: u('photo-1509042239860-f550ce710b93'),
-  coffeeCup: u('photo-1572442388796-11668a67e53d'),
-  icedCoffee: u('photo-1461023058943-07fcbe16d735'),
-  latte: u('photo-1541167760496-1628856ab772'),
-  milkshake: u('photo-1615832494873-b0c52d519696'),
-  shakeJar: u('photo-1625398407796-82650a8c135f'),
-  berryShake: u('photo-1544145945-f90425340c7e'),
-  cooler: u('photo-1551024506-0bccd828d307'),
-  juice: u('photo-1600271886742-f049cd451bba'),
-  iceCream: u('photo-1560008581-09826d1de69e'),
-  kulfi: u('photo-1590080875515-8a3a8dc5735e'),
-  butterscotch: u('photo-1570197788417-0e82375c9371'),
-  oreoSundae: u('photo-1563805042-7684c019e1cb'),
-  brownieSundae: u('photo-1563729784474-d77dbb933a9e'),
-  pastry: u('photo-1606313564200-e75d5e30476c'),
-} as const
+/**
+ * Image names, which are also their filenames in the Blob store.
+ *
+ * The originals were Unsplash, hotlinked. Two of those ids returned 404 within
+ * minutes of being verified, which is the whole reason these now live in the
+ * restaurant's own store: a menu that quietly loses its photographs is worse
+ * than one that never had them. Re-uploading is `menu/<name>.jpg` with
+ * allowOverwrite, so replacing one is a single put.
+ *
+ * Provenance of the originals, should any need re-sourcing:
+ *   paneerCurry      photo-1631452180519-c014fe946bc7
+ *   chana            photo-1585937421612-70a008356fbe
+ *   darkCurry        photo-1565557623262-b51c2513a641
+ *   tikka            photo-1567188040759-fb8a883dc6d8
+ *   mushroom         photo-1596797038530-2c107229654b
+ *   samosa           photo-1601050690597-df0568f70950
+ *   samosaBoard      photo-1553787499-6f9133860278
+ *   papadDal         photo-1567337710282-00832b415979
+ *   fries            photo-1541592106381-b31e9677c0e5
+ *   almonds          photo-1596040033229-a9821ebd058d
+ *   dosa             photo-1668236543090-82eba5ee5976
+ *   idli             photo-1603133872878-684f208fb84b
+ *   bananaLeaf       photo-1601050690117-94f5f6fa8bd7
+ *   thali            photo-1626777552726-4a6b54c97e46
+ *   noodles          photo-1585032226651-759b368d7246
+ *   pizza            photo-1513104890138-7c749659a591
+ *   pizza2           photo-1630383249896-424e482df921
+ *   pasta            photo-1621996346565-e3dbc646d9a9
+ *   creamyPasta      photo-1476124369491-e7addf5db371
+ *   cappuccino       photo-1509042239860-f550ce710b93
+ *   coffeeCup        photo-1572442388796-11668a67e53d
+ *   icedCoffee       photo-1461023058943-07fcbe16d735
+ *   latte            photo-1541167760496-1628856ab772
+ *   milkshake        photo-1615832494873-b0c52d519696
+ *   shakeJar         photo-1625398407796-82650a8c135f
+ *   berryShake       photo-1544145945-f90425340c7e
+ *   cooler           photo-1551024506-0bccd828d307
+ *   juice            photo-1600271886742-f049cd451bba
+ *   iceCream         photo-1560008581-09826d1de69e
+ *   kulfi            photo-1590080875515-8a3a8dc5735e
+ *   butterscotch     photo-1570197788417-0e82375c9371
+ *   oreoSundae       photo-1563805042-7684c019e1cb
+ *   brownieSundae    photo-1563729784474-d77dbb933a9e
+ *   pastry           photo-1606313564200-e75d5e30476c
+ */
+const NAMES = [
+  'paneerCurry',
+  'chana',
+  'darkCurry',
+  'tikka',
+  'mushroom',
+  'samosa',
+  'samosaBoard',
+  'papadDal',
+  'fries',
+  'almonds',
+  'dosa',
+  'idli',
+  'bananaLeaf',
+  'thali',
+  'noodles',
+  'pizza',
+  'pizza2',
+  'pasta',
+  'creamyPasta',
+  'cappuccino',
+  'coffeeCup',
+  'icedCoffee',
+  'latte',
+  'milkshake',
+  'shakeJar',
+  'berryShake',
+  'cooler',
+  'juice',
+  'iceCream',
+  'kulfi',
+  'butterscotch',
+  'oreoSundae',
+  'brownieSundae',
+  'pastry',
+] as const
+
+type ImgName = (typeof NAMES)[number]
+
+export const IMG = Object.fromEntries(
+  NAMES.map((name) => [name, `${BLOB_BASE}/${name}.jpg`])
+) as Record<ImgName, string>
 
 export type DishPhoto = { src: string; alt: string }
 
