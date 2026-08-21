@@ -122,10 +122,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${display.variable} ${body.variable} ${script.variable}`}
     >
       <head>
-        {/* Both image hosts are contacted on nearly every page — warm them early.
-            Blob serves the dish photography (33 images on the menu alone); the
-            stock host still serves the gallery, about and reserve pages. */}
-        <link rel="preconnect" href="https://images.unsplash.com" />
+        {/* Every image on the site now comes from our own Blob store — warm it
+            early. The Unsplash preconnect is gone with the last hotlink. */}
         <link rel="preconnect" href="https://euzy3uln8hrj0lj1.public.blob.vercel-storage.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
