@@ -22,15 +22,19 @@ export function BrandLogo({
   title = "Morsaab’s",
 }: {
   className?: string
-  /** Rendered as the accessible name; pass null-ish only when a sibling labels it. */
-  title?: string
+  /**
+   * The accessible name. Pass `null` where something adjacent already names the
+   * brand — a screen reader meeting both would announce "Morsaab's Morsaab's".
+   */
+  title?: string | null
 }) {
+  const decorative = title === null
+
   return (
     <svg
       viewBox="0 0 470 270"
       className={className}
-      role="img"
-      aria-label={title}
+      {...(decorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': title })}
       // The gradients are id-scoped; two of these on one page would otherwise
       // collide, so the ids are namespaced rather than generic.
       focusable="false"
