@@ -132,7 +132,7 @@ export function DishCard({
               </span>
             </TooltipTrigger>
             <TooltipContent>
-              Chosen by Chef Ramesh — the dish he sends out when someone asks what to order.
+              Chosen at the pass — the dish we send out when someone asks what to order.
             </TooltipContent>
           </Tooltip>
         )}

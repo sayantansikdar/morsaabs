@@ -65,7 +65,7 @@ export default function ReservePage() {
                   {
                     Icon: Users,
                     title: 'Large groups',
-                    body: 'Up to 20 online. For more, our banquet floor seats 120 — call and ask for Vikram.',
+                    body: 'Up to 20 online. For more, our banquet floor seats 120 — call and ask for the banquet desk.',
                   },
                   {
                     Icon: MapPin,

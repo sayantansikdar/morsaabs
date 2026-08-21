@@ -55,7 +55,7 @@ export function ThankYouDetails() {
       title: `${greeting} Your message is with us.`,
       promise:
         params.get('subject') === 'catering' || params.get('subject') === 'banquet'
-          ? `${site.promise.enquiry}. Farah handles these personally and will come back with a costed menu, not a brochure.`
+          ? `${site.promise.enquiry}. Our events lead handles these personally and will come back with a costed menu, not a brochure.`
           : 'We answer general messages the same day. Anything urgent is faster by phone.',
       detail: null,
       primary: { label: 'Read event stories', href: '/stories' },
