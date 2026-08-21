@@ -13,6 +13,7 @@ import { primaryNav, serviceNav } from '@/lib/nav'
 import { site } from '@/lib/site'
 import { track } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
+import { BrandLogo } from '@/components/layout/brand-logo'
 
 export function Header() {
   const pathname = usePathname()
@@ -61,27 +62,16 @@ export function Header() {
           <Link
             href="/"
             className="group flex shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`${site.name} — home`}
           >
-            <Crest className={cn('size-9 transition-transform duration-300 group-hover:scale-105', scrolled ? 'text-gold-500' : 'text-gold-300')} />
-            <span className="flex flex-col leading-none">
-              <span
-                className={cn(
-                  'font-display text-xl font-bold tracking-tight sm:text-2xl',
-                  scrolled ? 'text-foreground' : 'text-sand-50'
-                )}
-              >
-                Morsaab’s
-              </span>
-              <span
-                className={cn(
-                  'mt-0.5 text-[0.62rem] font-semibold uppercase tracking-[0.22em]',
-                  scrolled ? 'text-gold-600 dark:text-gold-300' : 'text-gold-300'
-                )}
-              >
-                Royal Kitchen
-              </span>
-            </span>
+            {/* The badge carries the wordmark, so it stands alone — repeating
+                "Morsaab's" beside it would set the name twice. */}
+            <BrandLogo
+              className={cn(
+                'h-11 w-auto transition-transform duration-300 group-hover:scale-[1.03] sm:h-12',
+                scrolled ? '' : 'drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]'
+              )}
+              title={`${site.name} — home`}
+            />
           </Link>
 
           {/* Desktop navigation */}
