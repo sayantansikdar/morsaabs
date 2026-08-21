@@ -43,10 +43,19 @@ export function DurbarScene() {
    * near-static palace, and 8%→30% was too flat to register at hero height.
    * Every value collapses to 0 under prefers-reduced-motion.
    */
-  const sky = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '6%'])
-  const palace = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '14%'])
-  const arcade = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '26%'])
-  const drape = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '-14%'])
+  /*
+   * How far each plane travels over the hero's own scroll, as a share of its
+   * height. What reads as depth is the *ratio* between them, not the size of
+   * the numbers — so these were halved together, keeping the spread intact.
+   * Scoping the progress to the scene multiplied the real movement about
+   * fiftyfold, and the first values chosen for that scope were too much.
+   */
+  const DEPTH = { sky: 3, palace: 7, arcade: 13, drape: -7 }
+
+  const sky = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : `${DEPTH.sky}%`])
+  const palace = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : `${DEPTH.palace}%`])
+  const arcade = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : `${DEPTH.arcade}%`])
+  const drape = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : `${DEPTH.drape}%`])
 
   return (
     <div
