@@ -1,114 +1,108 @@
 /**
- * Case studies for the catering and banquet side of the business.
+ * How the catering side approaches three genuinely different jobs.
  *
- * PLACEHOLDER CONTENT — these are representative of the events Morsaab's runs,
- * written to show the section's shape. Replace each entry with a real event
- * (and get the client's written permission to name them) before launch.
+ * These are **capability briefs, not case studies**. They describe how an event
+ * of each shape is planned and staffed — which is the useful thing for someone
+ * deciding whether to ask for a quote — and they deliberately claim no past
+ * event, no client and no result.
+ *
+ * They used to be case studies, and they were invented ones: a named couple's
+ * wedding, a named residents' association in the restaurant's own
+ * neighbourhood, three testimonials attributed to identifiable people, and
+ * figures like "+0% food cost variance" and "6% food wastage" presented as
+ * measured outcomes. A caterer is asked to prove numbers like those, and none
+ * of it had happened.
+ *
+ * When there are real events to write up: get the client's written permission
+ * before naming them, quote only what they actually said, and publish only
+ * figures somebody recorded on the day.
  */
 
 export type Story = {
   slug: string
   title: string
-  client: string
+  /** The shape of the job, not a customer. */
+  scale: string
   eventType: 'Wedding' | 'Corporate' | 'Society' | 'Private'
-  guests: number
-  date: string
   summary: string
   challenge: string
   approach: string[]
+  /** What the approach is designed to achieve — a plan, not a result. */
   outcome: string
+  /** Capacities and choices, never outcomes nobody measured. */
   metrics: { label: string; value: string }[]
-  quote: { text: string; attribution: string }
 }
 
 export const stories: Story[] = [
   {
     slug: 'najafgarh-road-wedding-800',
-    title: '800 guests, one kitchen, zero queues',
-    client: 'The Sethi–Bajaj wedding',
+    title: 'A large wedding without the buffet queue',
+    scale: 'Weddings up to 800 guests',
     eventType: 'Wedding',
-    guests: 800,
-    date: '2026-02-14',
     summary:
-      'A February farmhouse wedding on Najafgarh Road with an 800-guest reception, six live counters and a hard 90-minute dinner window.',
+      'A farmhouse reception at full scale, six live counters, and a dinner service planned to finish inside ninety minutes rather than run to midnight.',
     challenge:
-      'The couple had been quoted by two caterers who both wanted to open dinner service at 9 PM and run it until midnight. The family wanted everyone fed inside 90 minutes so the dancing could start, without the buffet queues that make that impossible.',
+      'Most quotes for an 800-guest reception open dinner at 9 PM and run it until midnight, because one long buffet cannot move that many people any faster. Families who want the dancing to start are told the queue is unavoidable. It is not — it is a layout problem.',
     approach: [
-      'Split one long buffet into six island counters placed around the lawn, so no guest walked more than 20 metres or queued behind more than eight people.',
-      'Put the two slowest items — live dosa and tandoor — on their own counters at opposite ends, which is where queues normally form.',
-      'Pre-plated the chaat course entirely, so the first fifteen minutes of service needed no assembly at all.',
-      'Staffed at 1:20 rather than our usual 1:25 for the dinner hour only, then dropped back for dessert.',
+      'Split the buffet into island counters placed around the lawn, so no guest walks more than about twenty metres or stands behind more than a handful of people.',
+      'Put the two slowest items — live dosa and tandoor — on their own counters at opposite ends, which is where queues otherwise form.',
+      'Pre-plate the chaat course, so the opening minutes of service need no assembly at all.',
+      'Staff the dinner hour more heavily than the rest of the evening, then drop back for dessert.',
     ],
     outcome:
-      'Dinner opened at 8:40 PM and the last hot counter closed at 10:05 PM. The longest queue anyone measured was eleven people at the dosa counter, for about four minutes.',
+      'The plan is built backwards from the time the family wants dinner to end, and the counter count follows from that rather than from a price list.',
     metrics: [
-      { label: 'Guests served', value: '800' },
-      { label: 'Service window', value: '85 min' },
+      { label: 'Guests', value: 'Up to 800' },
       { label: 'Live counters', value: '6' },
-      { label: 'Food cost variance', value: '+0%' },
+      { label: 'Target service window', value: '90 min' },
+      { label: 'Menu', value: 'Pure veg' },
     ],
-    quote: {
-      text: 'We were braced for the buffet to be a disaster and it simply was not. My father still talks about the dosa counter.',
-      attribution: 'Ritu Sethi, mother of the bride',
-    },
   },
   {
     slug: 'quarterly-offsite-jain-menu',
-    title: 'A corporate offsite where the Jain menu was not an afterthought',
-    client: 'A Gurugram fintech, 140 staff',
+    title: 'A corporate offsite where the Jain menu is not an afterthought',
+    scale: 'Offsites and conferences, 50–200 staff',
     eventType: 'Corporate',
-    guests: 140,
-    date: '2026-04-09',
     summary:
-      'A full-day offsite where 38 of 140 attendees needed Jain or no-onion-no-garlic food, and the previous year’s caterer had served them all the same plate of plain dal and rice.',
+      'A full-day offsite where a large minority of the room eats Jain or no-onion-no-garlic, planned so that group is not handed apology food while everyone else eats properly.',
     challenge:
-      'The HR team told us plainly that a third of the room had spent the previous offsite eating apology food while everyone else ate properly. They wanted parity, not accommodation.',
+      'The usual arrangement is one menu with substitutions, which in practice means plain dal and rice for anyone with a restriction. People notice being catered to as an exception, and they remember it.',
     approach: [
-      'Built two complete menus of equal length rather than one menu with substitutions — same number of starters, same number of mains, same desserts.',
-      'Cooked the Jain menu in a separate section with its own pans, boards and staff, and labelled every chafing dish on both sides.',
-      'Ran the counters side by side with identical signage, so nobody had to ask which line was theirs.',
+      'Build two complete menus of equal length rather than one with substitutions — same number of starters, same number of mains, same desserts.',
+      'Cook the Jain menu in a separate section with its own pans, boards and staff, and label every chafing dish on both sides.',
+      'Run the counters side by side with identical signage, so nobody has to ask which line is theirs.',
     ],
     outcome:
-      'The feedback form came back with the Jain paneer lababdar as the single highest-rated dish of the day, across both menus.',
+      'Parity is the design goal rather than accommodation: both menus are written to be worth choosing on their own terms.',
     metrics: [
-      { label: 'Attendees', value: '140' },
-      { label: 'Jain / satvik covers', value: '38' },
+      { label: 'Attendees', value: '50–200' },
       { label: 'Menus built', value: '2 full' },
-      { label: 'Satisfaction', value: '4.8 / 5' },
+      { label: 'Jain / satvik', value: 'Separate section' },
+      { label: 'Labelling', value: 'Both sides' },
     ],
-    quote: {
-      text: 'Nobody at my table had to negotiate with a serving spoon. That is a low bar and you are the first caterer to clear it.',
-      attribution: 'Head of People Operations',
-    },
   },
   {
     slug: 'society-diwali-mela',
-    title: 'Feeding a housing society’s Diwali mela in four-hour shifts',
-    client: 'Mohan Garden RWA',
+    title: 'Feeding a housing-society mela in shifts',
+    scale: 'Society events, 200–500 residents',
     eventType: 'Society',
-    guests: 450,
-    date: '2025-10-20',
     summary:
-      'A neighbourhood Diwali mela with 450 residents drifting through across four hours rather than sitting down together — a service pattern that ruins most catering plans.',
+      'A neighbourhood mela where residents drift through across several hours rather than sitting down together — a service pattern that defeats most catering plans.',
     challenge:
-      'Nobody eats at the same time at a mela. Cook everything upfront and the last hundred people get cold food; cook to order and the queue never clears.',
+      'Nobody eats at the same time at a mela. Cook everything upfront and the last hundred people get cold food; cook strictly to order and the queue never clears.',
     approach: [
-      'Moved the whole menu to items that hold or cook fast: chaat, tikkas off a live tandoor, and dosa.',
-      'Cooked in 45-minute batches against a live headcount at the gate rather than a fixed plan.',
-      'Kept one sweet counter deliberately over-stocked, since that is where the drift concentrates at the end.',
+      'Move the menu towards items that hold well or cook fast: chaat, tikkas off a live tandoor, and dosa.',
+      'Cook in short batches against a live headcount at the gate rather than a fixed plan.',
+      'Keep one sweet counter deliberately over-stocked, since that is where the drift concentrates at the end.',
     ],
     outcome:
-      'Served 450 residents across four hours with 6% food wastage — roughly a third of what the RWA had budgeted for.',
+      'Batch cooking against an actual headcount is what keeps the last hour as good as the first, and keeps what is thrown away down.',
     metrics: [
-      { label: 'Residents served', value: '450' },
-      { label: 'Service window', value: '4 hrs' },
-      { label: 'Food wastage', value: '6%' },
-      { label: 'Repeat booking', value: 'Yes' },
+      { label: 'Residents', value: '200–500' },
+      { label: 'Service window', value: 'Up to 4 hrs' },
+      { label: 'Cooking', value: 'Live, in batches' },
+      { label: 'Menu', value: 'Hold-and-serve' },
     ],
-    quote: {
-      text: 'Third year running. The committee stopped taking other quotes after the first one.',
-      attribution: 'RWA General Secretary',
-    },
   },
 ]
 

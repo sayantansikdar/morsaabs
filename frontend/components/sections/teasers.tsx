@@ -28,9 +28,7 @@ export function StoriesTeaser() {
             >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone="maroon">{story.eventType}</Badge>
-                <Badge tone="muted">
-                  <span className="tnum">{story.guests}</span> guests
-                </Badge>
+                <Badge tone="muted">{story.scale}</Badge>
               </div>
 
               <h3 className="mt-4 font-display text-xl font-bold leading-snug text-foreground">
