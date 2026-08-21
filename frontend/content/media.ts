@@ -4,11 +4,13 @@
  * Every image on the site is declared here with its alt text (feature 16), so
  * alt copy is reviewed in one place rather than scattered through JSX.
  *
- * ⚠️ PLACEHOLDER PHOTOGRAPHY — the `src` values point at stock photography.
- * Replace each one with real Morsaab's photography before launch; the alt text
- * is already written for the real subject. Team headshots in particular must be
- * genuine photos of the actual team (feature 20) — do not ship stock faces as
- * if they were staff.
+ * ⚠️ PLACEHOLDER PHOTOGRAPHY — these are stock images, not Morsaab's own.
+ * Replace each with real photography before launch; the alt text is already
+ * written for the real subject.
+ *
+ * There are deliberately no photographs of people here. Stock faces presented
+ * as named staff, with written biographies, is a claim about real individuals
+ * that none of them agreed to; the team section that did that was removed.
  */
 
 export type Media = { src: string; alt: string; width: number; height: number }
@@ -109,54 +111,6 @@ export const media = {
     height: 1067,
   },
 } satisfies Record<string, Media>
-
-/** Feature 20 — the team. Replace with real headshots and real names. */
-export const team = [
-  {
-    name: 'Ramesh Bhatt',
-    role: 'Head Chef',
-    bio: 'Twenty-two years across Awadhi and Punjabi kitchens, the last nine of them running this pass. Writes most of what appears on our journal.',
-    photo: {
-      src: u('team-ramesh-bhatt'),
-      alt: 'Head Chef Ramesh Bhatt in whites at the Morsaab’s kitchen pass',
-      width: 800,
-      height: 800,
-    },
-  },
-  {
-    name: 'Sunita Rawat',
-    role: 'Sous Chef, Tandoor & South Indian',
-    bio: 'Runs the tandoor and the dosa griddle. The podi idli on the menu is hers and she will not share the ratio.',
-    photo: {
-      src: u('team-sunita-rawat'),
-      alt: 'Sous Chef Sunita Rawat working the tandoor section',
-      width: 800,
-      height: 800,
-    },
-  },
-  {
-    name: 'Vikram Chauhan',
-    role: 'Restaurant Manager',
-    bio: 'The person who calls you back within fifteen minutes of a reservation request. Has run the floor since we opened.',
-    photo: {
-      src: u('team-vikram-chauhan'),
-      alt: 'Restaurant Manager Vikram Chauhan on the dining room floor',
-      width: 800,
-      height: 800,
-    },
-  },
-  {
-    name: 'Farah Qureshi',
-    role: 'Catering & Events Lead',
-    bio: 'Costs every catering quote personally and has never sent an invoice that differed from it.',
-    photo: {
-      src: u('team-farah-qureshi'),
-      alt: 'Catering and Events Lead Farah Qureshi reviewing an event plan',
-      width: 800,
-      height: 800,
-    },
-  },
-]
 
 /** Feature 51 — before / after pairs for the fit-out and plating upgrades. */
 export type BeforeAfter = {
