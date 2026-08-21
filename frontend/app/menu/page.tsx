@@ -43,7 +43,7 @@ export default async function MenuPage() {
   const [menu, allItems] = await Promise.all([getPublicMenu(), getPublicMenuItems()])
   return (
     <>
-      <JsonLd data={menuSchema()} />
+      <JsonLd data={menuSchema(menu)} />
 
       <PageHeader
         eyebrow="The Carte"

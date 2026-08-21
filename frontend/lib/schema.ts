@@ -7,7 +7,7 @@
  */
 
 import { SITE_URL, site } from './site'
-import { menu } from '@/content/menu'
+import { menu as bundledMenu, type MenuCategory } from '@/content/menu'
 import { faqs } from '@/content/faqs'
 import type { Post } from '@/content/blog'
 
@@ -95,7 +95,12 @@ export function websiteSchema() {
   }
 }
 
-export function menuSchema() {
+/**
+ * Prices here go into Google's rich results, so they have to be the live ones —
+ * a stale price in structured data is worse than a stale price on the page,
+ * because it is what a searcher sees before they ever arrive.
+ */
+export function menuSchema(menu: MenuCategory[] = bundledMenu) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Menu',

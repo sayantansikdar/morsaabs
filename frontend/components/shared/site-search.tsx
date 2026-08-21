@@ -23,9 +23,18 @@ type Result = {
   chefSpecial?: boolean
 }
 
-/** Everything searchable, built once at module scope. */
-const INDEX: Result[] = [
-  ...allMenuItems.map((item) => ({
+type IndexedDish = {
+  name: string
+  price: number
+  description: string
+  spice: number
+  chefSpecial?: boolean
+  category: string
+  categorySlug: string
+}
+
+function toDishResults(items: IndexedDish[]): Result[] {
+  return items.map((item) => ({
     id: `dish-${item.name}`,
     title: item.name,
     subtitle: `${item.category} · ${item.description}`,
@@ -34,7 +43,11 @@ const INDEX: Result[] = [
     price: item.price,
     spice: item.spice,
     chefSpecial: item.chefSpecial,
-  })),
+  }))
+}
+
+/** Everything that is not a dish; these ship with the bundle and never change. */
+const STATIC_INDEX: Result[] = [
   ...services.map((s) => ({
     id: `service-${s.slug}`,
     title: s.name,
@@ -60,12 +73,12 @@ const INDEX: Result[] = [
 ]
 
 /** Token-prefix match, ranked so title hits beat description hits. */
-function search(query: string): Result[] {
+function search(query: string, index: Result[]): Result[] {
   const q = query.trim().toLowerCase()
   if (q.length < 2) return []
   const terms = q.split(/\s+/)
 
-  return INDEX.map((entry) => {
+  return index.map((entry) => {
     const title = entry.title.toLowerCase()
     const subtitle = entry.subtitle.toLowerCase()
     let score = 0
@@ -95,10 +108,35 @@ export function SiteSearch({
 }) {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
+
+  /*
+   * Dishes are fetched rather than bundled, so a price edited in the dashboard
+   * is not stale here. Until that lands — and if it fails — the carte compiled
+   * into the bundle stands in, so search always works.
+   */
+  const [dishes, setDishes] = React.useState<Result[]>(() =>
+    toDishResults(allMenuItems)
+  )
+  const fetched = React.useRef(false)
+
+  React.useEffect(() => {
+    if (!open || fetched.current) return
+    fetched.current = true
+    fetch('/api/menu-index')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((items: IndexedDish[] | null) => {
+        if (Array.isArray(items) && items.length > 0) setDishes(toDishResults(items))
+      })
+      .catch(() => {
+        // Keep the bundled list; search stays usable.
+      })
+  }, [open])
+
+  const index = React.useMemo(() => [...dishes, ...STATIC_INDEX], [dishes])
   const [active, setActive] = React.useState(0)
   const listId = React.useId()
 
-  const results = React.useMemo(() => search(query), [query])
+  const results = React.useMemo(() => search(query, index), [query, index])
 
   React.useEffect(() => setActive(0), [query])
 

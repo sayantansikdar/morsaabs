@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { SectionHeading, ArchFrame, Badge } from '@/components/ui/royal'
 import { DishCard } from '@/components/shared/dish-card'
 import { CopyButton } from '@/components/shared/copy-button'
-import { menu, allMenuItems } from '@/content/menu'
+import { menu, allMenuItems, type MenuItem } from '@/content/menu'
 import { media } from '@/content/media'
 import { site } from '@/lib/site'
 
@@ -22,8 +22,13 @@ const item = {
 }
 
 /** The eight dishes we would put in front of a first-time guest. */
-export function SignatureDishes() {
-  const picks = allMenuItems.filter((i) => i.chefSpecial || i.bestseller).slice(0, 8)
+/** A dish carries its category, which the card uses to link back to the menu. */
+type Pick = MenuItem & { category: string; categorySlug: string }
+
+export function SignatureDishes({ dishes }: { dishes?: Pick[] } = {}) {
+  // Falls back to the bundled carte when no database is configured.
+  const source = dishes ?? allMenuItems
+  const picks = source.filter((i) => i.chefSpecial || i.bestseller).slice(0, 8)
 
   return (
     <section id="signature" aria-labelledby="signature-title" className="py-20 sm:py-28">
