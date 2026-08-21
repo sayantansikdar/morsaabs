@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Star, MapPin, Clock, ChevronDown, Truck, CalendarCheck, UtensilsCrossed } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DurbarScene } from '@/components/sections/durbar-scene'
+import { BrandLogo } from '@/components/layout/brand-logo'
 import { SpiceDrift } from '@/components/sections/spice-drift'
 import { site } from '@/lib/site'
 
@@ -48,18 +49,33 @@ export function Hero() {
           </a>
         </div>
 
-        <p className="rise rise-1 mb-1 font-script text-3xl text-gold-300 sm:text-4xl" lang="hi">
+        <p className="rise rise-1 mb-2 font-script text-3xl text-gold-300 sm:mb-3 sm:text-4xl" lang="hi">
           {site.nameDevanagari}
         </p>
 
-        <h1
-          id="hero-title"
-          className="rise rise-2 text-display-xl font-bold text-sand-50 text-shadow-royal"
-        >
-          Morsaab’s
+        {/*
+          The badge is the visual heading; the <h1> below carries the same name
+          as text.
+
+          They are siblings rather than nested because the badge is SVG, and
+          SVG <text> counts as the element's text content. With the logo inside
+          the h1, the page's most important heading read
+          "msMORSAAB’STMMorsaab’s — A Royal Taste of India" to anything parsing
+          the markup — screen readers were fine, since the SVG is aria-hidden,
+          but search engines read the raw text.
+        */}
+        <div className="rise rise-2">
+          <BrandLogo
+            className="mx-auto h-auto w-full max-w-[15rem] drop-shadow-[0_6px_20px_rgba(0,0,0,0.45)] sm:max-w-[21rem]"
+            title={null}
+          />
+        </div>
+
+        <h1 id="hero-title" className="sr-only">
+          Morsaab’s — A Royal Taste of India
         </h1>
 
-        <p className="rise rise-3 mx-auto mt-2 max-w-2xl font-display text-xl italic text-gilt sm:mt-3 sm:text-2xl">
+        <p className="rise rise-3 mx-auto mt-3 max-w-2xl font-display text-xl italic text-gilt sm:mt-4 sm:text-2xl">
           A Royal Taste of India
         </p>
 
